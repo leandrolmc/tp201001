@@ -11,7 +11,7 @@
  * da porta que sera usada para a comunicacao e do endereco da maquina 
  * remota, retorna 1 em caso de sucesso e 0 em caso de falha
  */
-void P_Activate_Request(int, char *);
+int P_Activate_Request(int *, char *);
 
 // Solicita a transmissao de 1 byte e recebe o byte a ser transmitido
 void P_Data_Request(char);

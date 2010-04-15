@@ -7,9 +7,15 @@
  */
 
 #include "fisica.h"
+#include <stdio.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
-int main ()
-{
-   return 0;
+int P_Activate_Request(int port, char *end){
+
+	int sockfd;
+	
+	sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
 }
 
