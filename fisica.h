@@ -11,19 +11,19 @@
  * da porta que sera usada para a comunicacao e do endereco da maquina 
  * remota, retorna 1 em caso de sucesso e 0 em caso de falha
  */
- void P_Activate_Request(int, char *);
+void P_Activate_Request(int, char *);
 
 // Solicita a transmissao de 1 byte e recebe o byte a ser transmitido
- void P Data Request(char);
+void P_Data_Request(char);
 
 /* Testa se ha um byte recebido na camada fisica, 
  * retorna 1 caso exista um byte recebido na camada fisica
  */
- int P Data Indication(void);
+int P_Data_Indication(void);
 
 // Busca na camada fisica o ultimo byte recebido e retorna o byte recebido
- char P Data Receive(void);
+char P_Data_Receive(void);
 
 // Encerra o canal de comunicacao estabelecido
- void P Deactivate Request(void);
+void P_Deactivate_Request(void);
 

@@ -6,6 +6,8 @@
  *		Rafael de Oliveira Costa
  */
 
+#include "fisica.h"
+
 int main ()
 {
    return 0;
