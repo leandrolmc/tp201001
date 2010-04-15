@@ -6,3 +6,7 @@
  *		Rafael de Oliveira Costa
  */
 
+int main()
+{
+   return 0;
+}
