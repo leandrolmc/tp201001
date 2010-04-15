@@ -4,6 +4,5 @@
  * Componentes: Felipe Almeida Tavares
  *              Leandro Lima Monteiro Coelho
  *		Rafael de Oliveira Costa
- *
-/
+ */
 
