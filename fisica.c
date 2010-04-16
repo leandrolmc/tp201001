@@ -17,5 +17,7 @@ int P_Activate_Request(int port, char *end){
 	
 	sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
+	//teste
+
 }
 
