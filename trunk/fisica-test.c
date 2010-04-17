@@ -11,11 +11,24 @@
 
 int main()
 {
-	int r;
+	int retorno;
+	char bts = 'r';
+	char tmp;
 
-	r = P_Activate_Request(90, "127.0.0.1");
-	
-	printf("%d",r);
+	retorno = P_Activate_Request(90, "127.0.0.1");
+	if(retorno==1){
+		printf("--Sucess P_Activate_Request\n");
+		P_Data_Request(bts);
+		printf("--Sucess P_Data_Request\n");
+		retorno=P_Data_Indication();
+		if(retorno==1){
+			printf("--Sucess P_Data_Indication\n");
+			tmp=qretrieve();
+			printf("%c\n",tmp);
+
+		}
+	}
+
 
    return 0;
 }
