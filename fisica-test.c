@@ -13,10 +13,13 @@ int main()
 {
 	int retorno;
 	retorno = P_Activate_Request(9090, "127.0.0.1");
-	if(retorno==1){
-		printf("--Sucess P_Activate_Request\n");
+	if(!retorno){
+		printf("--Failed P_Activate_Request\n");
+		P_Deactivate_Request();
 	}
 
+	printf("--Sucess P_Activate_Request\n");
+	P_Deactivate_Request();
 
    return 0;
 }
