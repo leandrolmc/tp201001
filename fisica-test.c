@@ -12,10 +12,7 @@
 int main()
 {
 	int retorno;
-		
-	printf("Port: %d, End: %s\n",port,end);
-	
-	retorno = P_Activate_Request(port, end);
+	retorno = P_Activate_Request(9090, "127.0.0.1");
 	if(retorno==1){
 		printf("--Sucess P_Activate_Request\n");
 	}
