@@ -17,9 +17,13 @@
 #include <errno.h>
 #include <unistd.h> 
 
+#define BUFFER_SIZE 1024
+
 int phy_sd; // descritor do socket
+int last=0; //aponta pro ultimo byte recebido em buffer
 struct sockaddr_in phy_addr; // informacoes de endereco
 char *address; // endereco da maquina remota
+char buffer[BUFFER_SIZE]="rafael"; //buffer onde os bytes recebidos serão armazenados
 
 /*
  * Efetua as inicializacoes necessarias da camada fisica.
@@ -56,10 +60,24 @@ int P_Activate_Request(int port, char *addr){
 
 }
 
-// Solicita a transmissao de 1 byte e recebe o byte a ser transmitido
-void P_Data_Request(char byte_to_send){
+/*svoid P_Data_Request(char byte_to_send){
   
 	int bytes_sent;
+	
+	---
+	
+	servIP = argv[1];
+  servPort = atoi(argv[2]);
+ 
+  // configura a estrutura de dados com o endereco local 
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = inet_addr(servIP); 
+  addr.sin_port = htons(servPort);
+  bytes_sent = sendto(sock, buffer, strlen(buffer), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
+  
+  	---
+	
 	bytes_sent = sendto(phy_sd, &byte_to_send, strlen(&byte_to_send), 0, (struct sockaddr*)&phy_addr, sizeof (struct sockaddr_in));
 	
 	if (bytes_sent < 0) {
@@ -67,6 +85,7 @@ void P_Data_Request(char byte_to_send){
 	  exit(0);
 	}
 }
+*/
 
 /*
 int P_Data_Indication(void){
@@ -85,6 +104,12 @@ int P_Data_Indication(void){
 
 */
 
+// Busca na camada fisica o ultimo byte recebido e retorna o byte recebido
+char P_Data_Receive(void){
+  return buffer[last];
+}
+
+// Encerra o canal de comunicacao estabelecido
 void P_Deactivate_Request(void){
   close(phy_sd); 
 }
