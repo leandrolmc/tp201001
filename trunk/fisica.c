@@ -10,76 +10,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 #include <errno.h>
 #include <unistd.h> 
 
-#define QUEUESIZE 10
+int phy_sd;
+struct sockaddr_in phy_addr;
 
-int sockfd;
-struct sockaddr_in addr;
+int P_Activate_Request(int port, char *addr){
+        
+        if ((phy_sd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+        {
+           printf("--Erro na criacao do socket\n");
+           return 0;
+        }
 
-//Fila circular onde os bytes recebidos na camada física serao armazenados
-char phy_queue[QUEUESIZE+1];
+        memset(&phy_addr, 0, sizeof(phy_addr));
+        phy_addr.sin_family = AF_INET;
+        phy_addr.sin_addr.s_addr = inet_addr(addr);
+        phy_addr.sin_port = htons(port);
 
-//Representa o byte que esta sendo movimentado na camada fisica
-char byte;
+        if (bind(phy_sd,(struct sockaddr *)&phy_addr, sizeof(struct sockaddr)) < 0) {
+           printf("--Exit com erro no bind \n");
+           close(phy_sd);
+           return 0;
+        } 
 
-//Indica a posicao da  fila onde o byte sera inserido
-int spos=0;
+        return 1;
 
-//Indica a posicao da  fila do byte a ser retirado
-int rpos=0;
-
-//Insere um byte na fila
-void qstore(char q){
-    if(spos+1==rpos || (spos+1==QUEUESIZE && !rpos)){
-	printf("fila cheia");
-	exit(0);
-    }
-    phy_queue[spos] = q;
-    spos++;
-    if(spos==QUEUESIZE) spos=0;
 }
 
-//Retira um byte da pilha
-char qretrieve(void){
-    if(spos==QUEUESIZE) rpos=0;
-    if(rpos==spos) return -1;
-    rpos++;
-    return phy_queue[rpos-1]; 
-}
-
-int P_Activate_Request(int port, char *end){
-	
-	if ((sockfd = socket(PF_UNIX, SOCK_STREAM, 0)) < 0)
-	{
-	   printf("--Error: na criacao do socket\n");
-	   return 0;
-	}
-
-	memset(&addr, 0, sizeof(addr));
-  	addr.sin_family = AF_UNIX;
-  	addr.sin_addr.s_addr = inet_addr(end);
-  	addr.sin_port = htons(port);
-
-	if (bind(sockfd,(struct sockaddr *)&addr, sizeof(struct sockaddr)) < 0) {
-    	   printf("--Error: problemas no bind \n");
-    	   close(sockfd);
-    	   return 0;
-  	} 
-
-	return 1;
-}
-
+/*
 void P_Data_Request(char byte_to_send){
   
 	int bytes_sent;
 	
 	byte = byte_to_send;
-	bytes_sent = sendto(sockfd, &byte, strlen(&byte), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
+	bytes_sent = sendto(phy_sd, &byte, strlen(&byte), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
 	
 	if (bytes_sent < 0) {
 	  printf("--Error: byte nao transmitido \n");
@@ -92,7 +62,7 @@ int P_Data_Indication(void){
     ssize_t recsize;
     socklen_t fromlen;
   
-    	recsize = recvfrom(sockfd, (void *)&byte, 1, 0, (struct sockaddr *)&addr, &fromlen);
+    	recsize = recvfrom(phy_sd, (void *)&byte, 1, 0, (struct sockaddr *)&addr, &fromlen);
     	if (recsize < 0) {
        		printf("--Error byte nao recebido \n");
 		return 0;
@@ -101,3 +71,4 @@ int P_Data_Indication(void){
 	return 1;
 }
 
+*/
