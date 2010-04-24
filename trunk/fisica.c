@@ -43,13 +43,11 @@ int P_Activate_Request(int port, char *addr){
 
 }
 
-/*
+// Solicita a transmissao de 1 byte e recebe o byte a ser transmitido
 void P_Data_Request(char byte_to_send){
   
 	int bytes_sent;
-	
-	byte = byte_to_send;
-	bytes_sent = sendto(phy_sd, &byte, strlen(&byte), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
+	bytes_sent = sendto(phy_sd, &byte_to_send, strlen(&byte_to_send), 0, (struct sockaddr*)&phy_addr, sizeof (struct sockaddr_in));
 	
 	if (bytes_sent < 0) {
 	  printf("--Error: byte nao transmitido \n");
@@ -57,6 +55,7 @@ void P_Data_Request(char byte_to_send){
 	}
 }
 
+/*
 int P_Data_Indication(void){
 
     ssize_t recsize;
@@ -72,3 +71,7 @@ int P_Data_Indication(void){
 }
 
 */
+
+void P_Deactivate_Request(void){
+  close(phy_sd); 
+}
