@@ -17,22 +17,35 @@
 #include <errno.h>
 #include <unistd.h> 
 
-int phy_sd;
-struct sockaddr_in phy_addr;
+int phy_sd; // descritor do socket
+struct sockaddr_in phy_addr; // informacoes de endereco
+char *address; // endereco da maquina remota
 
+/*
+ * Efetua as inicializacoes necessarias da camada fisica.
+ *
+ * Parametros
+ * port: porta que sera usada para a comunicacao
+ * addr: endereco da maquina remota
+ *
+ * Retorna 1 em caso de sucesso e 0 em caso de falha
+ */
 int P_Activate_Request(int port, char *addr){
+	address = addr;
         
-        if ((phy_sd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
-        {
+	// criando o socket
+        if ((phy_sd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
            printf("--Erro na criacao do socket\n");
            return 0;
         }
 
+	// Definindo informações do endereco
         memset(&phy_addr, 0, sizeof(phy_addr));
         phy_addr.sin_family = AF_INET;
-        phy_addr.sin_addr.s_addr = inet_addr("addr");
+        phy_addr.sin_addr.s_addr = INADDR_ANY; // endereco local
         phy_addr.sin_port = htons(port);
 
+	// associando a porta a maquina local
         if (bind(phy_sd,(struct sockaddr *)&phy_addr, sizeof(struct sockaddr)) < 0) {
            printf("--Exit com erro no bind \n");
            close(phy_sd);
