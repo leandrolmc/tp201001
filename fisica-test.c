@@ -20,7 +20,8 @@ int main()
 	}
 
 	printf("--Sucess P_Activate_Request\n");
-	printf("ultimo byte recebido: %c\n",P_Data_Receive());
+	P_Data_Request('a');
+	//printf("ultimo byte recebido: %c\n",P_Data_Receive());
 	P_Deactivate_Request();
 
    return 0;
