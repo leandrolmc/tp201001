@@ -30,7 +30,7 @@ int P_Activate_Request(int port, char *addr){
 
         memset(&phy_addr, 0, sizeof(phy_addr));
         phy_addr.sin_family = AF_INET;
-        phy_addr.sin_addr.s_addr = inet_addr(addr);
+        phy_addr.sin_addr.s_addr = inet_addr("addr");
         phy_addr.sin_port = htons(port);
 
         if (bind(phy_sd,(struct sockaddr *)&phy_addr, sizeof(struct sockaddr)) < 0) {
