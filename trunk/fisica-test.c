@@ -12,6 +12,7 @@
 int main()
 {
 	int retorno;
+	char c;
 	retorno = P_Activate_Request(9090, "127.0.0.1");
 	if(!retorno){
 		printf("--Failed P_Activate_Request\n");
@@ -19,6 +20,7 @@ int main()
 	}
 
 	printf("--Sucess P_Activate_Request\n");
+	printf("ultimo byte recebido: %c\n",P_Data_Receive());
 	P_Deactivate_Request();
 
    return 0;
