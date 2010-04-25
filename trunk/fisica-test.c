@@ -18,6 +18,7 @@ int main()
 		printf("--Failed P_Activate_Request\n");
 		P_Deactivate_Request();
 	}
+	while(1);
 
 	printf("--Sucess P_Activate_Request\n");
 	P_Data_Request('a');

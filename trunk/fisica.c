@@ -56,7 +56,7 @@ int P_Activate_Request(int port, char *addr){
         } 
 
 
-	// Definindo informações do endereco local
+	// Definindo informações do endereco remoto
 	setAddress(remote_addr, AF_INET, inet_addr(addr), port);
 
         return 1;
