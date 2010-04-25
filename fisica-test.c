@@ -21,32 +21,20 @@ int main() {
 	if (P_Data_Indication()) {
 		printf("Byte recebido: %c\n", P_Data_Receive());
 	} else {
-		printf("Nenhum byte recebido");
+		printf("Nenhum byte recebido\n");
 	}
 
 	P_Data_Request('o');
-	P_Data_Request('i');
 
 	if (P_Data_Indication()) {
 		printf("Byte recebido: %c\n", P_Data_Receive());
 	} else {
-		printf("Nenhum byte recebido");
+		printf("Nenhum byte recebido\n");
 	}
 	if (P_Data_Indication()) {
 		printf("Byte recebido: %c\n", P_Data_Receive());
 	} else {
-		printf("Nenhum byte recebido");
-	}
-	if (P_Data_Indication()) {
-		printf("Byte recebido: %c\n", P_Data_Receive());
-	} else {
-		printf("Nenhum byte recebido");
-	}
-	P_Data_Request('!');
-	if (P_Data_Indication()) {
-		printf("Byte recebido: %c\n", P_Data_Receive());
-	} else {
-		printf("Nenhum byte recebido");
+		printf("Nenhum byte recebido\n");
 	}
 
 	P_Deactivate_Request();
