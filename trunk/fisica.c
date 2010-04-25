@@ -21,6 +21,7 @@
 #define BUFFER_SIZE 1024
 
 int phy_sd; // descritor do socket
+socklen_t fromlen;
 
 struct sockaddr_in local_addr; // informacoes de endereco local
 struct sockaddr_in remote_addr; // informacoes de endereco remoto
@@ -102,7 +103,7 @@ void P_Data_Request(char byte_to_send){
 int P_Data_Indication(void){
 	int resultado = poll(ufds, sizeof(ufds), 1000);
 	if (resultado == -1) {
-		printf("--erro no poll");
+		printf("--erro no poll\n");
 		return 0;
 	}
 	return resultado;
@@ -115,7 +116,7 @@ int P_Data_Indication(void){
  */
 char P_Data_Receive(void){
 	if (ufds[0].revents & POLLIN) {
-		recv(phy_sd, buffer_recv, sizeof(buffer_recv), 0); // receive normal data
+		recvfrom(phy_sd, buffer_recv, sizeof(buffer_recv), 0, (struct sockaddr *)&remote_addr, &fromlen);
 	}
 
 	return buffer_recv[last];
