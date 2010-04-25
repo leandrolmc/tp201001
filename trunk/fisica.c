@@ -20,13 +20,12 @@
 #define BUFFER_SIZE 1024
 
 int phy_sd; // descritor do socket
-int last=0; //aponta pro ultimo byte recebido em buffer
+
 struct sockaddr_in local_addr; // informacoes de endereco local
 struct sockaddr_in remote_addr; // informacoes de endereco remoto
-char *raddress; // endereco da maquina remota
-char buffer[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
 
-void setAddress(struct sockaddr_in, sa_family_t, unsigned int, int);
+char buffer[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
+int last=0; //aponta pro ultimo byte recebido em buffer
 
 /*
  * Efetua as inicializacoes necessarias da camada fisica.
@@ -46,7 +45,10 @@ int P_Activate_Request(int port, char *addr){
         }
 
 	// Definindo informações do endereco local
-	setAddress(local_addr, AF_INET, INADDR_ANY, port);
+	memset(&local_addr, 0, sizeof(local_addr));
+	local_addr.sin_family = AF_INET;
+	local_addr.sin_addr.s_addr = INADDR_ANY;
+	local_addr.sin_port = htons(port);
 
 	// associando a porta a maquina local
         if (bind(phy_sd,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
@@ -57,18 +59,27 @@ int P_Activate_Request(int port, char *addr){
 
 
 	// Definindo informações do endereco remoto
-	setAddress(remote_addr, AF_INET, inet_addr(addr), port);
+	memset(&remote_addr, 0, sizeof(remote_addr));
+	remote_addr.sin_family = AF_INET;
+	remote_addr.sin_addr.s_addr = inet_addr(addr);
+	remote_addr.sin_port = htons(port);
 
         return 1;
 
 }
 
+/*
+ * Solicita a transmissao de 1 byte
+ *
+ * Parametros
+ * byte_to_send: o byte (caracter) a ser transmitido
+ */
 void P_Data_Request(char byte_to_send){
-	buffer[0] = byte_to_send;
-	buffer[1] = '\0'; // temporario. melhorar esta parte.
+	sprintf(buffer, "%c", byte_to_send); // melhorar essa parte
 
-	if ((sendto(phy_sd, buffer, strlen(buffer), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr))) < 0) {
+	if ((sendto(phy_sd, buffer, strlen(buffer), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
+		close(phy_sd);
 	}
 	else {
 		printf("-- Dados transmitidos com sucesso.");
@@ -76,7 +87,11 @@ void P_Data_Request(char byte_to_send){
 }
 
 /*
-int P_Data_Indication(void){
+ * Testa se há um byte recebido na camada física.
+ *
+ * Retorna 1 em caso exista um byte recebido na camada física
+ */
+/*int P_Data_Indication(void){
 
     ssize_t recsize;
     socklen_t fromlen;
@@ -88,24 +103,20 @@ int P_Data_Indication(void){
     	}
 	qstore(byte);
 	return 1;
-}
+}*/
 
-*/
-
-// Busca na camada fisica o ultimo byte recebido e retorna o byte recebido
+/*
+ * Busca na camada fisica o ultimo byte recebido
+ *
+ * Retorna o byte recebido
+ */
 char P_Data_Receive(void){
 	return buffer[last];
 }
 
-// Encerra o canal de comunicacao estabelecido
+/*
+ * Encerra o canal de comunicacao estabelecido
+ */
 void P_Deactivate_Request(void){
 	close(phy_sd);
-}
-
-/* ***** FUNÇÕES AUXILIARES ***** */
-void setAddress(struct sockaddr_in addr, sa_family_t sin_family, unsigned int s_addr, int port) {
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = sin_family;
-	addr.sin_addr.s_addr = s_addr;
-	addr.sin_port = htons(port);
 }
