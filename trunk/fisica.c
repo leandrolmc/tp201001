@@ -101,7 +101,10 @@ void P_Data_Request(char byte_to_send){
  */
 int P_Data_Indication(void){
 	int resultado = poll(ufds, sizeof(ufds), 1000);
-	if (resultado == -1) printf("--erro no poll");
+	if (resultado == -1) {
+		printf("--erro no poll");
+		return 0;
+	}
 	return resultado;
 }
 
