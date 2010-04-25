@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/poll.h>
 #include <errno.h>
 #include <unistd.h> 
 
@@ -24,7 +25,10 @@ int phy_sd; // descritor do socket
 struct sockaddr_in local_addr; // informacoes de endereco local
 struct sockaddr_in remote_addr; // informacoes de endereco remoto
 
-char buffer[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
+struct pollfd ufds[1];
+
+char buffer_send[BUFFER_SIZE]; //buffer onde os bytes enviados serão armazenados
+char buffer_recv[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
 int last=0; //aponta pro ultimo byte recebido em buffer
 
 /*
@@ -64,6 +68,10 @@ int P_Activate_Request(int port, char *addr){
 	remote_addr.sin_addr.s_addr = inet_addr(addr);
 	remote_addr.sin_port = htons(port);
 
+
+	ufds[0].fd = phy_sd;
+	ufds[0].events = POLLIN;
+
         return 1;
 
 }
@@ -75,14 +83,14 @@ int P_Activate_Request(int port, char *addr){
  * byte_to_send: o byte (caracter) a ser transmitido
  */
 void P_Data_Request(char byte_to_send){
-	sprintf(buffer, "%c", byte_to_send); // melhorar essa parte
+	sprintf(buffer_send, "%c", byte_to_send); // melhorar essa parte
 
-	if ((sendto(phy_sd, buffer, strlen(buffer), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
+	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
 		close(phy_sd);
 	}
 	else {
-		printf("-- Dados transmitidos com sucesso.");
+		printf("-- Dados transmitidos com sucesso.\n");
 	}
 }
 
@@ -91,19 +99,11 @@ void P_Data_Request(char byte_to_send){
  *
  * Retorna 1 em caso exista um byte recebido na camada física
  */
-/*int P_Data_Indication(void){
-
-    ssize_t recsize;
-    socklen_t fromlen;
-  
-    	recsize = recvfrom(phy_sd, (void *)&byte, 1, 0, (struct sockaddr *)&addr, &fromlen);
-    	if (recsize < 0) {
-       		printf("--Error byte nao recebido \n");
-		return 0;
-    	}
-	qstore(byte);
-	return 1;
-}*/
+int P_Data_Indication(void){
+	int resultado = poll(ufds, sizeof(ufds), 1000);
+	if (resultado == -1) printf("--erro no poll");
+	return resultado;
+}
 
 /*
  * Busca na camada fisica o ultimo byte recebido
@@ -111,7 +111,11 @@ void P_Data_Request(char byte_to_send){
  * Retorna o byte recebido
  */
 char P_Data_Receive(void){
-	return buffer[last];
+	if (ufds[0].revents & POLLIN) {
+		recv(phy_sd, buffer_recv, sizeof(buffer_recv), 0); // receive normal data
+	}
+
+	return buffer_recv[last];
 }
 
 /*

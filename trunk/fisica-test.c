@@ -9,19 +9,46 @@
 #include <stdio.h>
 #include "fisica.h"
 
-int main()
-{
-	int retorno;
-	char c;
-	retorno = P_Activate_Request(9090, "127.0.0.1");
-	if(!retorno){
+int main() {
+
+	if(!P_Activate_Request(9090, "127.0.0.1")){
 		printf("--Failed P_Activate_Request\n");
 		P_Deactivate_Request();
 	}
 
 	printf("--Sucess P_Activate_Request\n");
-	P_Data_Request('a');
-	//printf("ultimo byte recebido: %c\n",P_Data_Receive());
+
+	if (P_Data_Indication()) {
+		printf("Byte recebido: %c\n", P_Data_Receive());
+	} else {
+		printf("Nenhum byte recebido");
+	}
+
+	P_Data_Request('o');
+	P_Data_Request('i');
+
+	if (P_Data_Indication()) {
+		printf("Byte recebido: %c\n", P_Data_Receive());
+	} else {
+		printf("Nenhum byte recebido");
+	}
+	if (P_Data_Indication()) {
+		printf("Byte recebido: %c\n", P_Data_Receive());
+	} else {
+		printf("Nenhum byte recebido");
+	}
+	if (P_Data_Indication()) {
+		printf("Byte recebido: %c\n", P_Data_Receive());
+	} else {
+		printf("Nenhum byte recebido");
+	}
+	P_Data_Request('!');
+	if (P_Data_Indication()) {
+		printf("Byte recebido: %c\n", P_Data_Receive());
+	} else {
+		printf("Nenhum byte recebido");
+	}
+
 	P_Deactivate_Request();
 
    return 0;
