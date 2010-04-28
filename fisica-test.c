@@ -17,7 +17,6 @@ int main() {
 	char param_address[15];
 	char byte;
 
-	printf("Selecione uma Função\n");
 	printf("'a': P_Activate_Request\n");
 	printf("'t': P_Data_Request\n");
 	printf("'i': P_Data_Indication\n");
@@ -27,7 +26,6 @@ int main() {
 	printf("'s': Sair\n");
 
 	scanf("%c",&option);
-	printf("\n");
 
 	do{
 		
@@ -40,6 +38,8 @@ int main() {
 				if(!P_Activate_Request(param_port, param_address)){
 					printf("--Failed P_Activate_Request\n");
 					P_Deactivate_Request();
+					printf("Selecione uma Função\n");
+					continue;
 				}
 				printf("--Sucess P_Activate_Request %d %s\n",param_port,param_address);
 				printf("Selecione uma Função\n");
@@ -57,7 +57,7 @@ int main() {
 				printf("P_Data_Indication(void)\n");        
 				
 				if (P_Data_Indication()) {
-				  printf("Byte recebido: %c\n", P_Data_Receive());
+				  printf("O Byte recebido foi %c\n",P_Data_Receive());
 				} else {
 				  printf("Nenhum byte recebido\n");
 				}
@@ -66,11 +66,20 @@ int main() {
 
                		case 'r':              
 				printf("P_Data_Receive(void)\n");
-				printf("Selecione uma Função\n");
+				byte=P_Data_Receive();
+				if (byte >= '!' && byte <= '~'){
+				  printf("--Sucess P_Receive_Request\n");
+				}
+				else{
+				  printf("--Failed P_Receive_Request\n");
+				}
+				 printf("Selecione uma Função\n");
                     		break;
 
                		case 'd':              
-				printf("P_Deactivate_Request(void)\n");                 
+				printf("P_Deactivate_Request(void)\n");  
+				P_Deactivate_Request();
+				printf("--Sucess P_Deactivate_Request\n");
 				printf("Selecione uma Função\n");
                     		break;
 
