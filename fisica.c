@@ -36,7 +36,7 @@ int last=0; //aponta pro ultimo byte recebido em buffer
  * Efetua as inicializacoes necessarias da camada fisica.
  *
  * Parametros
- * port: porta que sera usada para a comunicacao
+ * port: porta que sera usada para a comunicacao; o valor dessa porta deve ser diferente de 5000 (porta do comutador)
  * addr: endereco da maquina remota
  *
  * Retorna 1 em caso de sucesso e 0 em caso de falha
@@ -48,6 +48,12 @@ int P_Activate_Request(int port, char *addr){
            printf("--Erro na criacao do socket\n");
            return 0;
         }
+
+	if(port==5000){
+	   printf("--Erro na criacao do socket\n");
+	   printf("--Escolha uma porta diferente de 5000\n");
+           return 0;
+	}
 
 	// Definindo informações do endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
