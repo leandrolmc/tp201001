@@ -6,6 +6,7 @@
  *		Rafael de Oliveira Costa
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -13,9 +14,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <unistd.h> 
-#include <stdlib.h>
 
-#define BUFFERSIZE	1024
 #define NUMBER_OF_PORTS 32
 
 //Estrutura que representa a tabela de emulacao das conexoes fisicas com o comutador
@@ -29,14 +28,51 @@ struct table_phy {
 //Estrutura que representa a tabela de funcionamento normal do comutador
 struct table_switch {
 	unsigned char mac;
-	//Essa porta do switch descreve o socket(endereco IP, porta) do host ao qual se quer conectar
+	//Essa porta do switch remete ao socket(endereco IP, porta) do host ao qual se quer conectar
 	int port_switch;
 };
 
+typedef struct {
+	unsigned char mac;
+	int port;
+	char *address;
+} buffer;
+
 int plug_host(mac, my_port, my_addr, switch_port, switch_addr){
 
-	//implementar cliente udp
+	int sockfd;
+	int bytes_sent;
+	//char buffer[80];
+	buffer temp; 	
 
+	struct sockaddr_in addr;
+
+	// cria o descritor de socket para o servico entrega nao-confiavel
+	if ((sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+		printf("--Erro na criacao do socket\n");
+		return 0;
+	}
+
+	// configura a estrutura de dados com o endereco local 
+	memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = inet_addr(switch_addr); 
+	addr.sin_port = htons(switch_port);
+ 
+	//FALTA mandar mac, my_port, my_addr
+
+	temp.mac=mac;
+	temp.port=my_port;
+	temp.address=(char *)my_addr;
+
+	//printf("digite uma mensagem: \n"); 
+	//scanf(" %[^\n]",buffer);
+	bytes_sent = sendto(sockfd, &temp, sizeof (buffer), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
+
+	if (bytes_sent < 0) {
+		printf("--Erro no recebimento \n");
+	}
+	close(sockfd); 
 
 	return 1;
 }
@@ -44,13 +80,22 @@ int plug_host(mac, my_port, my_addr, switch_port, switch_addr){
 int start_switch(){
 
 	int sockfd;
-	struct sockaddr_in local_addr; 
-	char buffer[BUFFERSIZE];
-	ssize_t recsize;
-	socklen_t fromlen;
 
+	//Variavel que aponta pra posicao livre da tabela fisica
+	int entry_table_phy=0;
+
+	//Variavel que aponta pra posicao livre da tabela do comutador
+	int entry_table_switch=0;
+
+	struct sockaddr_in local_addr; 
+	ssize_t recsize;
+	socklen_t fromlen;	
+
+	//char buffer[BUFFERSIZE];
+	buffer temp; 	
+	
 	//A porta do comutador deve ser padrao e todos os hosts devem ter conhecimento disso.
-       int port = 5000;
+        int port = 5000;
 
 	//O endereco do comutador deve ser padrao (nesse caso, 127.0.0.1) e todos os hosts devem ter conhecimento disso.
 	char *addr="127.0.0.1";
@@ -86,17 +131,28 @@ int start_switch(){
 
 	// loop principal do servidor
 	for (;;)  {
-		memset(buffer, 0, sizeof(buffer));
-		printf ("esperando mensagens....\n");
-		recsize = recvfrom(sockfd, (void *) buffer, BUFFERSIZE, 0, (struct sockaddr *)&local_addr, &fromlen);
+		//memset(buffer, 0, sizeof(buffer));
+		//printf ("esperando mensagens....\n");
+		//recsize = recvfrom(sockfd, (void *) buffer, BUFFERSIZE, 0, (struct sockaddr *)&local_addr, &fromlen);
+		//if (recsize < 0) {
+		//	printf("--Erro no recebimento \n");
+		//}
+		//printf("mensagem recebida: %s (%d bytes)\n",buffer,recsize);
+
+		memset(&temp, 0, sizeof(temp));
+		recsize = recvfrom(sockfd, (void *) temp, sizeof(temp), 0, (struct sockaddr *)&local_addr, &fromlen);
+
 		if (recsize < 0) {
 			printf("--Erro no recebimento \n");
 		}
-		printf("mensagem recebida: %s (%d bytes)\n",buffer,recsize);
+		else if (recsize > 0){
+			table_phy[entry_table_phy]=temp.mac;
+			table_phy[entry_table_phy]=temp.port;
+			table_phy[entry_table_phy]=temp.address;
+			entry_table_phy++;
+			recsize=0;
+		}	
 	}
-
-	
-
 
         return 1;
 }

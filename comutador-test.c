@@ -7,6 +7,7 @@
  */
 
 #include "comutador.h"
+#include <stdio.h>
 
 int main(){
 

@@ -9,6 +9,7 @@
 #include "enlace.h"
 #include "comutador.h"
 #include <time.h>
+#include <stdio.h>
 
 int main(){
 	
@@ -16,7 +17,7 @@ int main(){
 
 	//Gerando um endereco MAC
 	srand ( time(NULL) );
-	mac = rand() % 255);
+	mac = (rand() % 255);
 
 	if(!L_Activate_Request(mac, 5000,"127.0.0.1")){
 		printf("--Failed L_Activate_Request\n");

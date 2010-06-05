@@ -37,7 +37,7 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 	//Obtendo o endereco IP do host para que o comutador possa contactar o host
 	//my_addr = ??? 
 
-	if(!plug_host(my_mac, my_port, *my_addr, switch_port, switch_addr)){
+	if(!plug_host(my_mac, my_port, my_addr, switch_port, switch_addr)){
 		printf("--Failed plug_host\n");
 	}
  

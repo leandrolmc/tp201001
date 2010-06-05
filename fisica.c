@@ -49,11 +49,12 @@ int P_Activate_Request(int port, char *addr){
            return 0;
         }
 
+	/*
 	if(port==5000){
 	   printf("--Erro na criacao do socket\n");
 	   printf("--Escolha uma porta diferente de 5000\n");
            return 0;
-	}
+	}*/
 
 	// Definindo informações do endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
