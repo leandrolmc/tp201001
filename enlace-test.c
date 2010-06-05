@@ -8,11 +8,18 @@
 
 #include "enlace.h"
 #include "comutador.h"
+#include <time.h>
 
 int main(){
+	
+	unsigned char mac;
 
-	if(!start_switch()){
-		printf("--Failed start_switch\n");
+	//Gerando um endereco MAC
+	srand ( time(NULL) );
+	mac = rand() % 255);
+
+	if(!L_Activate_Request(mac, 5000,"127.0.0.1")){
+		printf("--Failed L_Activate_Request\n");
 	}
 
    return 0;
