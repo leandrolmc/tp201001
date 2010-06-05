@@ -6,52 +6,99 @@
  *		Rafael de Oliveira Costa
  */
 
-int phy_sd; // descritor do socket
-struct sockaddr_in local_addr; // informacoes de endereco local
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <unistd.h> 
+#include <stdlib.h>
+
+#define BUFFERSIZE	1024
+#define NUMBER_OF_PORTS 32
 
 //Estrutura que representa a tabela de emulacao das conexoes fisicas com o comutador
 struct table_phy {
+	unsigned char mac;
+	int port;
+	char *address;
+	int port_switch;
 };
 
 //Estrutura que representa a tabela de funcionamento normal do comutador
 struct table_switch {
+	unsigned char mac;
+	//Essa porta do switch descreve o socket(endereco IP, porta) do host ao qual se quer conectar
+	int port_switch;
 };
+
+int plug_host(mac, my_port, my_addr, switch_port, switch_addr){
+
+	//implementar cliente udp
+
+
+	return 1;
+}
 
 int start_switch(){
 
+	int sockfd;
+	struct sockaddr_in local_addr; 
+	char buffer[BUFFERSIZE];
+	ssize_t recsize;
+	socklen_t fromlen;
+
 	//A porta do comutador deve ser padrao e todos os hosts devem ter conhecimento disso.
-	port=5000
-        
-	//O endereco do comutador deve ser padrao e todos os hosts devem ter conhecimento disso.
-	addr="192.168.0.1"	
+       int port = 5000;
 
-	// criando o socket
-        if ((phy_sd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-           printf("--Erro na criacao do socket\n");
-           return 0;
-        }
+	//O endereco do comutador deve ser padrao (nesse caso, 127.0.0.1) e todos os hosts devem ter conhecimento disso.
+	char *addr="127.0.0.1";
 
-	// Definindo informações do endereco local
+	// cria o descritor de socket para o servico entrega nao-confiavel
+	if ((sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+		printf("--Erro na criacao do socket\n");
+		exit(0);
+	}
+
+	// configura a estrutura de dados com o endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
 	local_addr.sin_family = AF_INET;
+
 	local_addr.sin_addr.s_addr = inet_addr(addr);
 	local_addr.sin_port = htons(port);
 
-	// associando a porta a maquina local
-        if (bind(phy_sd,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
-           printf("--Exit com erro no bind \n");
-           close(phy_sd);
-           return 0;
-        } 
+	// associa o descritor de socket com o endereco local
+	if (bind(sockfd,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
+		printf("--Exit com erro no bind \n");
+		close(sockfd);
+		exit(0);
+	} 
 
-	//Devo inicializar as tabelas do comutador
+	//Inicializando as tabelas do comutador
+
+	struct table_phy table_phy[NUMBER_OF_PORTS];
+	memset(&table_phy, 0, sizeof(table_phy));
+
+	struct table_switch table_switch[NUMBER_OF_PORTS];
+	memset(&table_switch, 0, sizeof(table_switch));
+
+
+	// loop principal do servidor
+	for (;;)  {
+		memset(buffer, 0, sizeof(buffer));
+		printf ("esperando mensagens....\n");
+		recsize = recvfrom(sockfd, (void *) buffer, BUFFERSIZE, 0, (struct sockaddr *)&local_addr, &fromlen);
+		if (recsize < 0) {
+			printf("--Erro no recebimento \n");
+		}
+		printf("mensagem recebida: %s (%d bytes)\n",buffer,recsize);
+	}
+
+	
+
 
         return 1;
-}
-
-int plug_host(){
-
-	return 1;
 }
 
  //Abaixo estao informacoes tiradas da lista de tp com as respostas da Silvana
@@ -90,5 +137,4 @@ int plug_host(){
   /*  Os hosts deverao informar seu IP e porta no primeiro contato com o comutador para preenchimento da tab. de emulacao.
    *  Apenas os hosts que fizerem esse primeiro contato estarao ativos para broadcast
    */ 
-
 
