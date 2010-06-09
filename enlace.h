@@ -7,6 +7,12 @@
  *		Rafael de Oliveira Costa
  */
 
+/*
+ * FRAME:          MACORIGEM|MACDESTINO|TAMANHODOSDADOS|DADOS|CODIGOERRO|
+ *
+ * FRAME ESPECIAL: MACORIGEM|000|PORTA|ENDERECOHOST|000|
+ */
+
 
 /* Efetua as inicializacoes do nivel de enlace (recebe o endereco local da maquina) e inicializa o nivel  
  * fisico (recebe a especificacao da porta que sera usada para a comunicacao e o endereco IP do comutador de enlace)
