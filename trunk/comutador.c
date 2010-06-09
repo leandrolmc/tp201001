@@ -8,42 +8,41 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <unistd.h> 
+#include <time.h>
 
+#define BUFFER_SIZE	128
 #define NUMBER_OF_PORTS 32
 
 //Estrutura que representa a tabela de emulacao das conexoes fisicas com o comutador
 struct table_phy {
-	unsigned char mac;
-	int port;
+	char *mac;
+	char *port;
 	char *address;
 	int port_switch;
 };
 
 //Estrutura que representa a tabela de funcionamento normal do comutador
 struct table_switch {
-	unsigned char mac;
+	char *mac;
 	//Essa porta do switch remete ao socket(endereco IP, porta) do host ao qual se quer conectar
 	int port_switch;
 };
 
-typedef struct {
-	unsigned char mac;
-	int port;
-	char *address;
-} buffer;
+struct table_phy table_phy[NUMBER_OF_PORTS];
+struct table_switch table_switch[NUMBER_OF_PORTS];
 
 int plug_host(mac, my_port, my_addr, switch_port, switch_addr){
 
 	int sockfd;
 	int bytes_sent;
-	//char buffer[80];
-	buffer temp; 	
+	char buffer[BUFFER_SIZE];
+	char temp[16];
 
 	struct sockaddr_in addr;
 
@@ -58,19 +57,15 @@ int plug_host(mac, my_port, my_addr, switch_port, switch_addr){
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = inet_addr(switch_addr); 
 	addr.sin_port = htons(switch_port);
- 
-	//FALTA mandar mac, my_port, my_addr
+ 	
+	//Criando Frame Especial contendo mac,porta e endereço do host
+	memset(&buffer, 0, strlen(buffer));
+	sprintf(buffer, "%d|0|%d|%s|0", mac, my_port, (const char *)my_addr);
 
-	temp.mac=mac;
-	temp.port=my_port;
-	temp.address=(char *)my_addr;
-
-	//printf("digite uma mensagem: \n"); 
-	//scanf(" %[^\n]",buffer);
-	bytes_sent = sendto(sockfd, &temp, sizeof (buffer), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
-
+	//Enviando Frame Especial
+	bytes_sent = sendto(sockfd, &buffer, strlen(buffer), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
 	if (bytes_sent < 0) {
-		printf("--Erro no recebimento \n");
+		printf("--Erro no Envio \n");
 	}
 	close(sockfd); 
 
@@ -79,25 +74,27 @@ int plug_host(mac, my_port, my_addr, switch_port, switch_addr){
 
 int start_switch(){
 
+	//Descritor do Socket
 	int sockfd;
 
-	//Variavel que aponta pra posicao livre da tabela fisica
-	int entry_table_phy=0;
-
-	//Variavel que aponta pra posicao livre da tabela do comutador
-	int entry_table_switch=0;
-
-	struct sockaddr_in local_addr; 
+	struct 	sockaddr_in local_addr; 
 	ssize_t recsize;
 	socklen_t fromlen;	
 
-	//char buffer[BUFFERSIZE];
-	buffer temp; 	
+	char 	buffer[BUFFER_SIZE];
+	char 	*mac_source,
+		*mac_dest,
+		*data_length,
+		*data,
+		*error_code;
+
+	int 	port_switch; 	
 	
 	//A porta do comutador deve ser padrao e todos os hosts devem ter conhecimento disso.
         int port = 5000;
 
 	//O endereco do comutador deve ser padrao (nesse caso, 127.0.0.1) e todos os hosts devem ter conhecimento disso.
+	//TODO: ESSE ENDERECO DEVE SER REVISTO
 	char *addr="127.0.0.1";
 
 	// cria o descritor de socket para o servico entrega nao-confiavel
@@ -109,7 +106,6 @@ int start_switch(){
 	// configura a estrutura de dados com o endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
 	local_addr.sin_family = AF_INET;
-
 	local_addr.sin_addr.s_addr = inet_addr(addr);
 	local_addr.sin_port = htons(port);
 
@@ -121,37 +117,42 @@ int start_switch(){
 	} 
 
 	//Inicializando as tabelas do comutador
-
-	struct table_phy table_phy[NUMBER_OF_PORTS];
 	memset(&table_phy, 0, sizeof(table_phy));
-
-	struct table_switch table_switch[NUMBER_OF_PORTS];
 	memset(&table_switch, 0, sizeof(table_switch));
-
 
 	// loop principal do servidor
 	for (;;)  {
-		//memset(buffer, 0, sizeof(buffer));
-		//printf ("esperando mensagens....\n");
-		//recsize = recvfrom(sockfd, (void *) buffer, BUFFERSIZE, 0, (struct sockaddr *)&local_addr, &fromlen);
-		//if (recsize < 0) {
-		//	printf("--Erro no recebimento \n");
-		//}
-		//printf("mensagem recebida: %s (%d bytes)\n",buffer,recsize);
-
-		memset(&temp, 0, sizeof(temp));
-		recsize = recvfrom(sockfd, (void *) temp, sizeof(temp), 0, (struct sockaddr *)&local_addr, &fromlen);
-
+		memset(buffer, 0, sizeof(buffer));
+		printf ("esperando mensagens....\n");
+		recsize = recvfrom(sockfd, (void *) buffer, BUFFER_SIZE, 0, (struct sockaddr *)&local_addr, &fromlen);
 		if (recsize < 0) {
 			printf("--Erro no recebimento \n");
 		}
-		else if (recsize > 0){
-			table_phy[entry_table_phy]=temp.mac;
-			table_phy[entry_table_phy]=temp.port;
-			table_phy[entry_table_phy]=temp.address;
-			entry_table_phy++;
-			recsize=0;
-		}	
+		printf("mensagem recebida: %s (%d bytes)\n",buffer,recsize);
+
+		mac_source = strtok (buffer,"|");
+		mac_dest = strtok (NULL, "|");
+		data_length = strtok (NULL, "|");
+		data = strtok (NULL, "|");
+		error_code = strtok (NULL, "|");
+
+		//Verifica se o FRAME e especial.
+		//Se for um frame especial significa que o frame veio da funcao plug_host() e portanto
+		//devemos colocar as informacoes na tabela de emulacao das conexoes fisicas
+		if(strcmp(mac_dest,"0"))
+		{
+			printf("nao eh frame especial\n");
+		}
+		else
+		{
+			table_phy[port_switch].port_switch=generate_switch_port();;
+			table_phy[port_switch].mac=mac_source;
+			//No frame especial utilizo o campo data-length para guardar a porta do host
+			table_phy[port_switch].port=data_length;
+			//No frame especial utilizo o campo data para guardar o endereco do host
+			table_phy[port_switch].address=data;
+		}
+
 	}
 
         return 1;
@@ -190,7 +191,14 @@ int start_switch(){
    *    em broadcast pelo comutador.
    */
 
-  /*  Os hosts deverao informar seu IP e porta no primeiro contato com o comutador para preenchimento da tab. de emulacao.
-   *  Apenas os hosts que fizerem esse primeiro contato estarao ativos para broadcast
-   */ 
+int generate_switch_port(){
+	int port;
 
+	//Gerando uma porta para o comutador
+	srand ( time(NULL) );
+	do{
+		port = (rand() % NUMBER_OF_PORTS);		
+	}while(table_phy[port].port_switch!=0);	//Verificar se a porta ja esta sendo utilizada	
+
+	return port;
+}

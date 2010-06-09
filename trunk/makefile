@@ -9,5 +9,5 @@ enlace: fisica.c fisica.h enlace-test.c enlace.c enlace.h comutador.c comutador.
 
 clean:
 	rm *.bin
-	rm *~
+	rm *~ 
 
