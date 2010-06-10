@@ -8,6 +8,13 @@
  */
 
 
+#define BUFFER_SIZE	128
+#define NUMBER_OF_PORTS 32
+
+//A porta do comutador deve ser padrao e todos os hosts devem ter conhecimento disso.
+#define SWITCH_PORT 	5000
+
+
 /* Efetua a inicializacao do comutador 
  * Retorna 1 em caso de sucesso e 0 em caso de falha
  */
@@ -16,12 +23,12 @@ int start_switch();
 /* Efetua as operacoes necessarias ao plugar um host no comutador 
  * Retorna 1 em caso de sucesso e 0 em caso de falha
  */
-int plug_host(unsigned char mac, int my_port, char *my_addr,int switch_port,char *switch_addr);
+int plug_host(unsigned char ,int , char * ,int ,char *);
 
 /* Efetua as operacoes necessarias ao desplugar um host no comutador 
  * Retorna 1 em caso de sucesso e 0 em caso de falha
  */
-int unplug_host(unsigned char mac);
+int unplug_host(unsigned char);
 
 
 /* Gera uma porta aleatoria para o comutador de acordo com o numero de enlaces do comutador
