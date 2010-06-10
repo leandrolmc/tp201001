@@ -23,7 +23,8 @@ unsigned char my_mac; //endereco MAC
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
 	/* Cada host irá iniciar o software da camada de enlace definindo o endereço MAC que irá usar. 
-	 * Esse endereço ficará armazenado como variável global e poderá ser acessado pelo proprio host a qualquer tempo
+	 * Esse endereço ficará armazenado como variável global e poderá ser acessado pelo proprio 
+	 * host a qualquer tempo
 	 */
 	my_mac=mac;
 
@@ -45,10 +46,16 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
  * Recebe o endereco MAC de destino, os dados a serem transmitidos e o numero de bytes
  */                        
 
-void L_Data_Request(unsigned char mac_dest, char *data, int bytes_to_send){
+void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
+
+/*	int mac;*/
+/*	mac=(int)mac_dest; */
+
+/*	printf("%d\n",mac);*/
+/*	puts(payload);*/
+/*	printf("%d\n",bytes_to_send);*/
 
 }
-
 
 /* Neste trabalho, o host emissor terá que enviar o quadro para o comutador e este comutador terá que redirecionar o
    quadro para o host destino cujo endereço MAC está contido no frame enviado pelo host emissor.
@@ -63,3 +70,10 @@ void L_Data_Request(unsigned char mac_dest, char *data, int bytes_to_send){
    Quando o comutador recebe o quadro do host fonte, ele não tem nada na sua tabela de comutação 
    inicialmente e usa o endereço broadcast 255 para enviar esse quadro para todos os hosts.
 */
+
+void L_Deactivate_Request(void){
+	if(!unplug_host(my_mac)){
+		printf("--Failed unplug_host\n");
+	}
+}
+

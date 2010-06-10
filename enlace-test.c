@@ -11,14 +11,20 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(){
 
-	char option;	
+	char option;
+	char payload_temp[PAYLOAD_SIZE];	
+	int mac_temp;
 	unsigned char mac;
+	char *payload;
+	int bytes_to_send=0;
 
 	printf("'a': L_Activate_Request\n");
-//	printf("'d': L_Data_Request(mac_dest, data, bytes_to_send)\n");
+	printf("'t': L_Data_Request\n");
+	printf("'d': L_Deactivate_Request\n");
 	printf("'h': Help\n");
 	printf("'s': Sair\n");
 
@@ -28,35 +34,43 @@ int main(){
 		switch(option)
 	      	{
                		case 'a':              
-				printf("L_Activate_Request()\n");
-
 				//Gerando um endereco MAC
 				srand ( time(NULL) );
 				mac = (rand() % 255);
-
 				if(!L_Activate_Request(mac, 5000,"127.0.0.1")){
-					printf("--Failed L_Activate_Request\n");					
-					exit(1);
+				       printf("--Failed L_Activate_Request\n");					
+				       exit(0);
 				}		
 				printf("--Sucess L_Activate_Request\n");
 				printf("Selecione uma Função\n");
                     		break;
-			/*
-               		case 'd':       
-				getchar();
-				printf("L_Data_Request(unsigned char mac_dest, char *data, int bytes_to_send)\n");
-				//FALTA PASSAR AS INFORMACOES
-				scanf("%c",);
-				scanf("%s",);
 
-				if(!L_Data_Request(mac_dest, data, bytes_to_send)){
-					printf("--Failed L_Data_Request\n");
-					exit(1);					
-				}		
+			
+	               		case 't':       
+				getchar();
+
+				//Lendo do Teclado MAC destino e o PAYLOAD
+				printf("Digite MAC destino\n");				
+				scanf("%d",&mac_temp);
+				mac = (unsigned char)mac_temp;
+				printf("Digite PAYLOAD a ser enviado\n");
+				scanf("%s",payload_temp);
+				payload=payload_temp;
+				bytes_to_send=strlen(payload);
+
+				//Solicitando transmissao de um quadro para o mac destino
+				L_Data_Request(mac, payload, bytes_to_send);
+
 				printf("--Sucess L_Data_Request\n");
 				printf("Selecione uma Função\n");
                     		break;
-			*/
+			
+
+               		case 'd':              
+				P_Deactivate_Request();
+				printf("--Sucess L_Deactivate_Request\n");
+				printf("Selecione uma Função\n");
+                    		break;
 
                		case 'h':              
 				printf("---------------------------------------------------------------------------\n");
