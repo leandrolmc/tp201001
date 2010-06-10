@@ -16,16 +16,15 @@
 int main(){
 
 	char option;
-	char payload_temp[PAYLOAD_SIZE];	
-	int mac_temp;
-	unsigned char mac;
 	char *payload;
+	char  payload_temp[PAYLOAD_SIZE];	
+	unsigned char mac;	
+	int mac_temp;
 	int bytes_to_send=0;
 
 	printf("'a': L_Activate_Request\n");
 	printf("'t': L_Data_Request\n");
 	printf("'d': L_Deactivate_Request\n");
-	printf("'h': Help\n");
 	printf("'s': Sair\n");
 
 	scanf("%c",&option);
@@ -37,7 +36,8 @@ int main(){
 				//Gerando um endereco MAC
 				srand ( time(NULL) );
 				mac = (rand() % 255);
-				if(!L_Activate_Request(mac, 5000,"127.0.0.1")){
+
+				if(!L_Activate_Request(mac, SWITCH_PORT,"127.0.0.1")){
 				       printf("--Failed L_Activate_Request\n");					
 				       exit(0);
 				}		
@@ -45,11 +45,9 @@ int main(){
 				printf("Selecione uma Função\n");
                     		break;
 
-			
-	               		case 't':       
+	               	case 't':       
 				getchar();
-
-				//Lendo do Teclado MAC destino e o PAYLOAD
+				//Lendo do Teclado o MAC destino e o PAYLOAD
 				printf("Digite MAC destino\n");				
 				scanf("%d",&mac_temp);
 				mac = (unsigned char)mac_temp;
@@ -63,23 +61,13 @@ int main(){
 
 				printf("--Sucess L_Data_Request\n");
 				printf("Selecione uma Função\n");
-                    		break;
+       	            		break;
 			
-
-               		case 'd':              
+       	       		case 'd':              
 				P_Deactivate_Request();
 				printf("--Sucess L_Deactivate_Request\n");
 				printf("Selecione uma Função\n");
-                    		break;
-
-               		case 'h':              
-				printf("---------------------------------------------------------------------------\n");
-				printf("'a': P_Activate_Request(int, char *)\n");
-				printf("Efetua as inicializacoes necessarias da camada fisica,recebe a especiﬁcacao da porta que sera usada para a comunicacao e do endereco da maquina remota, retorna 1 em caso de sucesso e 0 em caso de falha\n\n");
-				printf("'h': Help\n");
-				printf("'s': Sair\n");
-				printf("--------------------------------------------------------------------------\n");
-                    		break;
+               			break;
 
                		case 's':              
                     		exit(1);

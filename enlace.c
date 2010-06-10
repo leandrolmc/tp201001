@@ -11,15 +11,6 @@
 #include <stdio.h>
 #include <time.h>
 
-unsigned char broadcast=255; //endereco de broadcast
-unsigned char my_mac; //endereco MAC
-
-/* Efetua as inicializacoes do nivel de enlace (recebe o endereco local da maquina) e inicializa o nivel  
- * fisico (recebe a especificacao da porta que sera usada para a comunicacao e o endereco IP do comutador de enlace)
- * Faz o bind para a porta escolhida e faz as inicializacoes necessarias para a camada de enlace
- * Retorna 1 em caso de sucesso e 0 em caso de falha
- */
-
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
 	/* Cada host irá iniciar o software da camada de enlace definindo o endereço MAC que irá usar. 
@@ -42,19 +33,36 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 	}
 }
 
-/* Solicita a transmissao de um quadro
- * Recebe o endereco MAC de destino, os dados a serem transmitidos e o numero de bytes
- */                        
-
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
+/*Teste para ver que as informações estão chegando corretas:*/
 /*	int mac;*/
 /*	mac=(int)mac_dest; */
-
 /*	printf("%d\n",mac);*/
 /*	puts(payload);*/
 /*	printf("%d\n",bytes_to_send);*/
 
+}
+
+int L_Data_Indication(){
+	return 1;
+}
+
+int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
+	return 1;
+}
+
+void L_MainLoop(){
+}
+
+void L_Set_Loss_Probability(float percent_lost_frame){
+}
+
+void L_Deactivate_Request(void){
+	//TODO ver função unplug_host
+	if(!unplug_host((unsigned char)my_mac)){
+		printf("--Failed unplug_host\n");
+	}
 }
 
 /* Neste trabalho, o host emissor terá que enviar o quadro para o comutador e este comutador terá que redirecionar o
@@ -70,10 +78,3 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
    Quando o comutador recebe o quadro do host fonte, ele não tem nada na sua tabela de comutação 
    inicialmente e usa o endereço broadcast 255 para enviar esse quadro para todos os hosts.
 */
-
-void L_Deactivate_Request(void){
-	if(!unplug_host(my_mac)){
-		printf("--Failed unplug_host\n");
-	}
-}
-
