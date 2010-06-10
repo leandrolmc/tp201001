@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <time.h>
 
+unsigned char broadcast=255; //endereco de broadcast
+
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
 	/* Cada host irá iniciar o software da camada de enlace definindo o endereço MAC que irá usar. 

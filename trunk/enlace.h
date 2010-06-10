@@ -31,9 +31,8 @@
  */
 
 /*
- * Endereco broadcast (usar o valor 255)
+ * Endereco broadcast (usar o valor 255) definido em enlace.c
  */
-unsigned char broadcast=255; //endereco de broadcast
 
 /*
  * Definir tamanho maximo de dados de um quadro.

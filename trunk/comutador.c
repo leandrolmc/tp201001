@@ -73,15 +73,19 @@ int plug_host(unsigned char mac, int my_port, char *my_addr, int switch_port, ch
 int unplug_host(unsigned char mac){
 
 	int i;
+	char mac_temp[2];
+	
+	mac_temp[0]=mac;
+	mac_temp[1]='\0';
 	
 	//Identificando em que porta o host identificado pelo mac passado por parametro 
 	for(i=1;i<=NUMBER_OF_PORTS;i++){
-		//TODO Fazer essa comparação
-		if( ! (table_phy[i].mac==mac) )
+		if(!(strcmp(table_phy[i].mac,mac_temp)))
 		{
+			printf("igual\n");
 			//Remover registro da tabela de emulacao das conexoes fisicas com o comutador
-			table_phy[i].port_switch=0;
-			return 1;
+			//table_phy[i].port_switch=0;
+			//return 1;
 			//exit(0);
 		}	
 	}
@@ -147,8 +151,8 @@ int start_switch(){
 		}
 		printf("mensagem recebida: %s (%d bytes)\n",buffer,recsize);
 
-		mac_dest = strtok (NULL, "|");
-		mac_source = strtok (buffer,"|");
+		mac_dest = strtok (buffer, "|");
+		mac_source = strtok (NULL,"|");
 		data_length = strtok (NULL, "|");
 		data = strtok (NULL, "|");
 		error_code = strtok (NULL, "|");
@@ -158,7 +162,8 @@ int start_switch(){
 		//devemos colocar as informacoes na tabela de emulacao das conexoes fisicas
 		if(!strcmp(mac_dest,"0"))
 		{
-			table_phy[port_switch].port_switch=generate_switch_port();;
+			port_switch=generate_switch_port();
+			table_phy[port_switch].port_switch=port_switch;
 			table_phy[port_switch].mac=mac_source;
 			//No frame especial utilizo o campo data-length para guardar a porta do host
 			table_phy[port_switch].port=data_length;
