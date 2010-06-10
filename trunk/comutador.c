@@ -29,11 +29,12 @@ struct table_phy {
 
 //Estrutura que representa a tabela de funcionamento normal do comutador
 struct table_switch {
-	char *mac;
 	//Essa porta do switch remete ao socket(endereco IP, porta) do host ao qual se quer conectar
 	int port_switch;
+	char *mac;
 };
 
+//Declarando as tabelas como variaveis globais
 struct table_phy table_phy[NUMBER_OF_PORTS];
 struct table_switch table_switch[NUMBER_OF_PORTS];
 
@@ -65,11 +66,31 @@ int plug_host(mac, my_port, my_addr, switch_port, switch_addr){
 	//Enviando Frame Especial
 	bytes_sent = sendto(sockfd, &buffer, strlen(buffer), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
 	if (bytes_sent < 0) {
-		printf("--Erro no Envio \n");
+		printf("--Failed Erro no Envio \n");
 	}
 	close(sockfd); 
 
 	return 1;
+}
+
+int unplug_host(unsigned char mac){
+
+	int i;
+	
+	//Identificando em que porta o host identificado pelo mac passado por parametro 
+	for(i=1;i<=NUMBER_OF_PORTS;i++){
+		if( ! strcmp(table_phy[i].mac,(const char *)mac) )
+		{
+			//Remover registro da tabela de emulacao das conexoes fisicas com o comutador
+			table_phy[i].port_switch=0;
+			return 1;
+			//exit(0);
+		}	
+	}
+	//TODO falta remover informacao da tabela de funcionamento normal do comutador
+
+	printf("--Failed MAC nao encontrado\n"); 
+	return 0;
 }
 
 int start_switch(){
@@ -93,7 +114,8 @@ int start_switch(){
 	//A porta do comutador deve ser padrao e todos os hosts devem ter conhecimento disso.
         int port = 5000;
 
-	//O endereco do comutador deve ser padrao (nesse caso, 127.0.0.1) e todos os hosts devem ter conhecimento disso.
+	//O endereco do comutador deve ser padrao (nesse caso, 127.0.0.1) 
+	//e todos os hosts devem ter conhecimento disso.
 	//TODO: ESSE ENDERECO DEVE SER REVISTO
 	char *addr="127.0.0.1";
 
@@ -139,11 +161,7 @@ int start_switch(){
 		//Verifica se o FRAME e especial.
 		//Se for um frame especial significa que o frame veio da funcao plug_host() e portanto
 		//devemos colocar as informacoes na tabela de emulacao das conexoes fisicas
-		if(strcmp(mac_dest,"0"))
-		{
-			printf("nao eh frame especial\n");
-		}
-		else
+		if(!strcmp(mac_dest,"0"))
 		{
 			table_phy[port_switch].port_switch=generate_switch_port();;
 			table_phy[port_switch].mac=mac_source;
@@ -151,6 +169,12 @@ int start_switch(){
 			table_phy[port_switch].port=data_length;
 			//No frame especial utilizo o campo data para guardar o endereco do host
 			table_phy[port_switch].address=data;
+		}
+		else
+		{
+			//TODO receber outro tipo de mensagem
+			printf("nao eh frame especial\n");
+
 		}
 
 	}
@@ -197,7 +221,7 @@ int generate_switch_port(){
 	//Gerando uma porta para o comutador
 	srand ( time(NULL) );
 	do{
-		port = (rand() % NUMBER_OF_PORTS);		
+		port = (rand() % NUMBER_OF_PORTS) + 1 ;		
 	}while(table_phy[port].port_switch!=0);	//Verificar se a porta ja esta sendo utilizada	
 
 	return port;
