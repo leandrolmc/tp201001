@@ -71,12 +71,10 @@ int start_switch(){
 			printf("O Byte recebido foi %c\n", c);
 			if (c == "$") break;
 			// Vamos ter que ir pegando byte a byte ate montar o quadro ate chegar a $ (final do quadro)
+			// concatenação de string
 		}
 
-/*
-		if (recsize < 0) {
-			printf("--Erro no recebimento \n");
-		}
+
 		printf("mensagem recebida: %s (%d bytes)\n",buffer,recsize);
 
 		mac_dest = strtok (buffer, "|");
@@ -102,7 +100,7 @@ int start_switch(){
 		{
 			//TODO receber outro tipo de mensagem
 			printf("nao eh frame especial\n");
-		}*/
+		}
 
 	}
         return 1;
