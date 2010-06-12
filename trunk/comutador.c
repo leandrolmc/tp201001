@@ -52,7 +52,7 @@ int plug_host(unsigned char mac, int my_port, char *my_addr){
 
 	// configura a estrutura de dados com o endereco local 
 	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = PF_INET;
+	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = inet_addr(SWITCH_ADDR); 
 	addr.sin_port = htons(SWITCH_PORT);
  	
@@ -115,14 +115,6 @@ int start_switch(){
 	
 	int port_switch;
 
-	//O endereco do comutador deve ser padrao (nesse caso, 127.0.0.1) 
-	//e todos os hosts devem ter conhecimento disso.
-	//TODO: ESSE ENDERECO DEVE SER REVISTO
-	char *addr="127.0.0.1";
-	//char *addr="192.168.1.100";
-
-
-
 	// cria o descritor de socket para o servico entrega nao-confiavel
 	if ((sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
 		printf("--Erro na criacao do socket\n");
@@ -131,8 +123,8 @@ int start_switch(){
 
 	// configura a estrutura de dados com o endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
-	local_addr.sin_family = PF_INET;
-	local_addr.sin_addr.s_addr = inet_addr(addr);
+	local_addr.sin_family = AF_INET;
+	local_addr.sin_addr.s_addr = inet_addr(SWITCH_ADDR);
 	local_addr.sin_port = htons(SWITCH_PORT);
 
 	// associa o descritor de socket com o endereco local
@@ -150,7 +142,7 @@ int start_switch(){
 	for (;;)  {
 		memset(buffer, 0, sizeof(buffer));
 		printf ("esperando mensagens....\n");
-		recsize = recvfrom(sockfd, (void *) buffer, BUFFER_SIZE, 0, (struct sockaddr *)&local_addr, &fromlen);
+		recsize = recvfrom(sockfd, (void *) buffer, BUFFER_SIZE, 0, (struct sockaddr *) 0, &fromlen);
 		if (recsize < 0) {
 			printf("--Erro no recebimento \n");
 		}
