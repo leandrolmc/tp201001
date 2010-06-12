@@ -142,7 +142,7 @@ int start_switch(){
 	for (;;)  {
 		memset(buffer, 0, sizeof(buffer));
 		printf ("esperando mensagens....\n");
-		recsize = recvfrom(sockfd, (void *) buffer, BUFFER_SIZE, 0, (struct sockaddr *) 0, &fromlen);
+		recsize = recvfrom(sockfd, (void *) buffer, BUFFER_SIZE, 0, (struct sockaddr *) NULL, &fromlen);
 		if (recsize < 0) {
 			printf("--Erro no recebimento \n");
 		}
