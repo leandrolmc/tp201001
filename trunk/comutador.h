@@ -13,7 +13,7 @@
 
 //A porta do comutador deve ser padrao e todos os hosts devem ter conhecimento disso.
 #define SWITCH_PORT 	5000
-#define SWITCH_ADDR	"127.0.0.1"
+#define SWITCH_ADDR	"192.168.1.100"
 
 
 /* Efetua a inicializacao do comutador 
