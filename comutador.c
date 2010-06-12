@@ -6,6 +6,7 @@
  *		Rafael de Oliveira Costa
  */
 
+#include "fisica.h"
 #include "comutador.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,9 +20,9 @@
 
 //Estrutura que representa a tabela de emulacao das conexoes fisicas com o comutador
 struct table_phy {
-	int port_switch;
+	int port_switch; //socket descriptor?
 	char *mac;
-	char *port;
+	int port;
 	char *address;
 };
 
@@ -36,71 +37,7 @@ struct table_switch {
 struct table_phy table_phy[NUMBER_OF_PORTS];
 struct table_switch table_switch[NUMBER_OF_PORTS];
 
-int plug_host(unsigned char mac, int my_port, char *my_addr){
-
-	int sockfd;
-	int bytes_sent;
-	char buffer[BUFFER_SIZE];
-
-	struct sockaddr_in addr;
-
-	// cria o descritor de socket para o servico entrega nao-confiavel
-	if ((sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-		printf("--Erro na criacao do socket\n");
-		return 0;
-	}
-
-	// configura a estrutura de dados com o endereco local 
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = inet_addr(SWITCH_ADDR); 
-	addr.sin_port = htons(SWITCH_PORT);
- 	
-	//Criando Frame Especial contendo mac,porta e endereço do host
-	memset(&buffer, 0, strlen(buffer));
-	sprintf(buffer, "0|%d|%d|%s|0", mac, my_port, (const char *)my_addr);
-
-	//Enviando Frame Especial
-	bytes_sent = sendto(sockfd, &buffer, strlen(buffer), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
-	if (bytes_sent < 0) {
-		printf("--Failed Erro no Envio \n");
-		return 0;
-	}
-	close(sockfd); 
-
-	return 1;
-}
-
-int unplug_host(unsigned char mac){
-
-	int i;
-	char var1;
-
-	//Identificando em que porta o host identificado pelo mac passado por parametro 
-	for(i=0;i<NUMBER_OF_PORTS;i++){
-		var1 = table_phy[i].mac[0];
-		if(var1==mac)
-		{
-			printf("igual\n");
-			//Remover registro da tabela de emulacao das conexoes fisicas com o comutador
-			//table_phy[i].port_switch=0;
-			//return 1;
-			//exit(0);
-		}
-		else{
-			printf("nao eh igual\n");
-		}	
-	}
-	//TODO falta remover informacao da tabela de funcionamento normal do comutador
-
-	printf("--Failed MAC nao encontrado\n"); 
-	return 0;
-}
-
 int start_switch(){
-/*
-Inicializar a camada fisica
-*/
 
 	//Descritor do Socket
 	int sockfd;
@@ -118,24 +55,7 @@ Inicializar a camada fisica
 	
 	int port_switch;
 
-	// cria o descritor de socket para o servico entrega nao-confiavel
-	if ((sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-		printf("--Erro na criacao do socket\n");
-		exit(0);
-	}
-
-	// configura a estrutura de dados com o endereco local
-	memset(&local_addr, 0, sizeof(local_addr));
-	local_addr.sin_family = AF_INET;
-	local_addr.sin_addr.s_addr = inet_addr(SWITCH_ADDR);
-	local_addr.sin_port = htons(SWITCH_PORT);
-
-	// associa o descritor de socket com o endereco local
-	if (bind(sockfd,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
-		printf("--Exit com erro no bind \n");
-		close(sockfd);
-		exit(0);
-	} 
+	P_Activate_Request(SWITCH_PORT, NULL);
 
 	//Inicializando as tabelas do comutador
 	memset(&table_phy, 0, sizeof(table_phy));
@@ -145,10 +65,15 @@ Inicializar a camada fisica
 	for (;;)  {
 		memset(buffer, 0, sizeof(buffer));
 		printf ("esperando mensagens....\n");
-		recsize = recvfrom(sockfd, (void *) buffer, BUFFER_SIZE, 0, (struct sockaddr *) NULL, &fromlen);
-		/*
-			Substituir a linha acima pelo L_Data_Indication e L_Data_Receive
-		*/
+
+		while(P_Data_Indication()) {
+			char c = P_Data_Receive()
+			printf("O Byte recebido foi %c\n", c);
+			if (c == "$") break;
+			// Vamos ter que ir pegando byte a byte ate montar o quadro ate chegar a $ (final do quadro)
+		}
+
+/*
 		if (recsize < 0) {
 			printf("--Erro no recebimento \n");
 		}
@@ -169,7 +94,7 @@ Inicializar a camada fisica
 			table_phy[port_switch].port_switch=port_switch;
 			table_phy[port_switch].mac=mac_source;
 			//No frame especial utilizo o campo data-length para guardar a porta do host
-			table_phy[port_switch].port=data_length;
+			table_phy[port_switch].port=atoi(data_length);
 			//No frame especial utilizo o campo data para guardar o endereco do host
 			table_phy[port_switch].address=data;
 		}
@@ -177,7 +102,7 @@ Inicializar a camada fisica
 		{
 			//TODO receber outro tipo de mensagem
 			printf("nao eh frame especial\n");
-		}
+		}*/
 
 	}
         return 1;
