@@ -98,6 +98,9 @@ int unplug_host(unsigned char mac){
 }
 
 int start_switch(){
+/*
+Inicializar a camada fisica
+*/
 
 	//Descritor do Socket
 	int sockfd;
@@ -143,6 +146,9 @@ int start_switch(){
 		memset(buffer, 0, sizeof(buffer));
 		printf ("esperando mensagens....\n");
 		recsize = recvfrom(sockfd, (void *) buffer, BUFFER_SIZE, 0, (struct sockaddr *) NULL, &fromlen);
+		/*
+			Substituir a linha acima pelo L_Data_Indication e L_Data_Receive
+		*/
 		if (recsize < 0) {
 			printf("--Erro no recebimento \n");
 		}
