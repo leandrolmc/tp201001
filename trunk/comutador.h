@@ -7,7 +7,6 @@
  *		Rafael de Oliveira Costa
  */
 
-
 #define BUFFER_SIZE	128
 #define NUMBER_OF_PORTS 32
 
@@ -24,12 +23,7 @@ int start_switch();
 /* Efetua as operacoes necessarias ao plugar um host no comutador 
  * Retorna 1 em caso de sucesso e 0 em caso de falha
  */
-int plug_host(unsigned char ,int , char *);
-
-/* Efetua as operacoes necessarias ao desplugar um host no comutador 
- * Retorna 1 em caso de sucesso e 0 em caso de falha
- */
-int unplug_host(unsigned char);
+int plug_host(int);
 
 /* Gera uma porta aleatoria para o comutador de acordo com o numero de enlaces do comutador
  * verifica se essa porta já esta sendo usada e caso afirmativo escolhe outra 
