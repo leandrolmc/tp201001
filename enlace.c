@@ -38,7 +38,7 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 	//TODO my_addr = ??? 
 	char *my_addr = "192.168.1.103";	
 
-	if(!plug_host(my_mac, my_port, my_addr, switch_port, switch_addr)){
+	if(!plug_host(my_mac, my_port, my_addr)){
 		printf("--Failed plug_host\n");
 	}
 

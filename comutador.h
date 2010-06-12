@@ -13,6 +13,7 @@
 
 //A porta do comutador deve ser padrao e todos os hosts devem ter conhecimento disso.
 #define SWITCH_PORT 	5000
+#define SWITCH_ADDR	"127.0.0.1"
 
 
 /* Efetua a inicializacao do comutador 
@@ -23,7 +24,7 @@ int start_switch();
 /* Efetua as operacoes necessarias ao plugar um host no comutador 
  * Retorna 1 em caso de sucesso e 0 em caso de falha
  */
-int plug_host(unsigned char ,int , char * ,int ,char *);
+int plug_host(unsigned char ,int , char *);
 
 /* Efetua as operacoes necessarias ao desplugar um host no comutador 
  * Retorna 1 em caso de sucesso e 0 em caso de falha
