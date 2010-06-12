@@ -37,7 +37,7 @@ int main(){
 				srand ( time(NULL) );
 				mac = (rand() % 255);
 
-				if(!L_Activate_Request(mac, SWITCH_PORT,"127.0.0.1")){
+				if(!L_Activate_Request(mac, SWITCH_PORT,SWITCH_ADDR)){
 				       printf("--Failed L_Activate_Request\n");					
 				}
 				else{
