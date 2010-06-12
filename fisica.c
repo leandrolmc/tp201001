@@ -62,11 +62,13 @@ int P_Activate_Request(int port, char *addr){
            return 0;
         } 
 
-	// Definindo informações do endereco remoto
 	memset(&remote_addr, 0, sizeof(remote_addr));
-	remote_addr.sin_family = AF_INET;
-	remote_addr.sin_addr.s_addr = inet_addr(addr);
-	remote_addr.sin_port = htons(port);
+	if (addr != NULL) {
+		// Definindo informações do endereco remoto
+		remote_addr.sin_family = AF_INET;
+		remote_addr.sin_addr.s_addr = inet_addr(addr);
+		remote_addr.sin_port = htons(port);
+	}
 
 	ufds[0].fd = phy_sd;
 	ufds[0].events = POLLIN;
