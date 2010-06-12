@@ -32,7 +32,11 @@ int main(){
 	do{
 		switch(option)
 	      	{
-               		case 'a':              
+               		case 'a':      
+				/*
+					chamar L_Activate_Request
+					chamar L_Data_Request para enviar o frame especial
+				*/        
 				//Gerando um endereco MAC
 				srand ( time(NULL) );
 				mac = (rand() % 255);

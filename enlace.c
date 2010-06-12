@@ -17,31 +17,41 @@ unsigned char my_mac=0; //endereco MAC do host que executar o software de enlace
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
-	/* Cada host irá iniciar o software da camada de enlace definindo o endereço MAC que irá usar. 
-	 * Esse endereço ficará armazenado como variável global e poderá ser acessado pelo proprio 
-	 * host a qualquer tempo
-	 */
+/*	/* Cada host irá iniciar o software da camada de enlace definindo o endereço MAC que irá usar. */
+/*	 * Esse endereço ficará armazenado como variável global e poderá ser acessado pelo proprio */
+/*	 * host a qualquer tempo*/
 
-	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada
-	if(my_mac!=0){
-		printf("--Failed my_mac ja foi gerado\n");
-		return 0;
-	}
-	my_mac=mac;
+/*	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada*/
+/*	if(my_mac!=0){*/
+/*		printf("--Failed my_mac ja foi gerado\n");*/
+/*		return 0;*/
+/*	}*/
+/*	my_mac=mac;*/
 
-	//Gerando uma porta para que o comutador possa contactar o host
-	int   my_port;  
-	srand ( time(NULL) );
-	while((my_port = rand() % 9999)<1000);
+/*	//Gerando uma porta para que o comutador possa contactar o host*/
+/*	int   my_port;  */
+/*	srand ( time(NULL) );*/
+/*	while((my_port = rand() % 9999)<1000);*/
 
-	//Obtendo o endereco IP do host para que o comutador possa contactar o host
-	//TODO my_addr = ??? 
-	char *my_addr = "192.168.1.106";	
+/*	//Obtendo o endereco IP do host para que o comutador possa contactar o host*/
+/*	//TODO my_addr = ??? */
+/*	char *my_addr = "192.168.1.106";	*/
 
-	if(!plug_host(my_mac, my_port, my_addr)){
-		printf("--Failed plug_host\n");
-		my_mac=0;
-	}
+/*	if(!plug_host(my_mac, my_port, my_addr)){*/
+/*		printf("--Failed plug_host\n");*/
+/*		my_mac=0;*/
+/*	}*/
+
+/*
+Pegar o mac
++inicializar a camada fisica
++conectar o cabo ao switch
+inicializar propriedades da camada de enlace
+*/
+
+
+
+
 
 	return 1;
 }

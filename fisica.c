@@ -54,6 +54,7 @@ int P_Activate_Request(int port, char *addr){
 	local_addr.sin_family = AF_INET;
 	local_addr.sin_addr.s_addr = INADDR_ANY;
 	local_addr.sin_port = htons(port);
+	printf("%s", inet_ntoa(local_addr.sin_addr));
 
 	// associando a porta a maquina local
         if (bind(phy_sd,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
