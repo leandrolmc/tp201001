@@ -36,7 +36,7 @@ struct table_switch {
 struct table_phy table_phy[NUMBER_OF_PORTS];
 struct table_switch table_switch[NUMBER_OF_PORTS];
 
-int plug_host(unsigned char mac, int my_port, char *my_addr, int switch_port, char *switch_addr){
+int plug_host(unsigned char mac, int my_port, char *my_addr){
 
 	int sockfd;
 	int bytes_sent;
@@ -53,8 +53,8 @@ int plug_host(unsigned char mac, int my_port, char *my_addr, int switch_port, ch
 	// configura a estrutura de dados com o endereco local 
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = inet_addr(switch_addr); 
-	addr.sin_port = htons(switch_port);
+	addr.sin_addr.s_addr = inet_addr(SWITCH_ADDR); 
+	addr.sin_port = htons(SWITCH_PORT);
  	
 	//Criando Frame Especial contendo mac,porta e endereço do host
 	memset(&buffer, 0, strlen(buffer));
