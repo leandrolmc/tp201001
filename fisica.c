@@ -49,13 +49,6 @@ int P_Activate_Request(int port, char *addr){
            return 0;
         }
 
-	/*
-	if(port==5000){
-	   printf("--Erro na criacao do socket\n");
-	   printf("--Escolha uma porta diferente de 5000\n");
-           return 0;
-	}*/
-
 	// Definindo informações do endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
 	local_addr.sin_family = AF_INET;
@@ -69,19 +62,16 @@ int P_Activate_Request(int port, char *addr){
            return 0;
         } 
 
-
 	// Definindo informações do endereco remoto
 	memset(&remote_addr, 0, sizeof(remote_addr));
 	remote_addr.sin_family = AF_INET;
 	remote_addr.sin_addr.s_addr = inet_addr(addr);
 	remote_addr.sin_port = htons(port);
 
-
 	ufds[0].fd = phy_sd;
 	ufds[0].events = POLLIN;
 
         return 1;
-
 }
 
 /*

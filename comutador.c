@@ -73,20 +73,21 @@ int plug_host(unsigned char mac, int my_port, char *my_addr, int switch_port, ch
 int unplug_host(unsigned char mac){
 
 	int i;
-	char mac_temp[2];
-	
-	mac_temp[0]=mac;
-	mac_temp[1]='\0';
-	
+	char var1;
+
 	//Identificando em que porta o host identificado pelo mac passado por parametro 
-	for(i=1;i<=NUMBER_OF_PORTS;i++){
-		if(!(strcmp(table_phy[i].mac,mac_temp)))
+	for(i=0;i<NUMBER_OF_PORTS;i++){
+		var1 = table_phy[i].mac[0];
+		if(var1==mac)
 		{
 			printf("igual\n");
 			//Remover registro da tabela de emulacao das conexoes fisicas com o comutador
 			//table_phy[i].port_switch=0;
 			//return 1;
 			//exit(0);
+		}
+		else{
+			printf("nao eh igual\n");
 		}	
 	}
 	//TODO falta remover informacao da tabela de funcionamento normal do comutador
@@ -186,7 +187,7 @@ int generate_switch_port(){
 	//Gerando uma porta para o comutador
 	srand ( time(NULL) );
 	do{
-		port = (rand() % NUMBER_OF_PORTS) + 1 ;		
+		port = (rand() % NUMBER_OF_PORTS);		
 	}while(table_phy[port].port_switch!=0);	//Verificar se a porta ja esta sendo utilizada	
 
 	return port;

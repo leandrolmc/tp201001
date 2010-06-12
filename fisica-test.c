@@ -19,25 +19,22 @@ int main() {
 
 	printf("'a': P_Activate_Request\n");
 	printf("'t': P_Data_Request\n");
-	printf("'i': P_Data_Indication\n");
 	printf("'r': P_Data_Receive\n");
 	printf("'d': P_Deactivate_Request\n");
 	printf("'h': Help\n");
 	printf("'s': Sair\n");
 
 	scanf("%c",&option);
-
 	do{
-		
 		switch(option)
 	      	{
                		case 'a':              
-				printf("P_Activate_Request(int, char *)\n");
+				printf("Digite porta e endereço destino\n");
 				scanf("%d %s", &param_port, param_address);
 
 				if(!P_Activate_Request(param_port, param_address)){
+					option='o';
 					printf("--Failed P_Activate_Request\n");
-					P_Deactivate_Request();
 					printf("Selecione uma Função\n");
 					continue;
 				}
@@ -47,25 +44,13 @@ int main() {
 
                		case 't':              
 				getchar();
-				printf("P_Data_Request(char)\n");
+				printf("Digite o byte a ser enviado\n");
 				scanf("%c",&byte);
 				P_Data_Request(byte);
 				printf("Selecione uma Função\n");
                     		break;
 
-               		case 'i':              
-				printf("P_Data_Indication(void)\n");        
-				
-				if (P_Data_Indication()) {
-				  printf("O Byte recebido foi %c\n",P_Data_Receive());
-				} else {
-				  printf("Nenhum byte recebido\n");
-				}
-				printf("Selecione uma Função\n");
-                    		break;
-
                		case 'r':              
-				printf("P_Data_Receive(void)\n");
 				byte=P_Data_Receive();
 				if (byte >= '!' && byte <= '~'){
 				  printf("--Sucess P_Receive_Request\n");
@@ -84,27 +69,16 @@ int main() {
                     		break;
 
                		case 'h':              
-				printf("------------------------------------------------------------------------------------\n");
-				printf("'a': P_Activate_Request(int, char *)\n");
-				printf("Efetua as inicializacoes necessarias da camada fisica,recebe a especiﬁcacao da porta que sera usada para a comunicacao e do endereco da maquina remota, retorna 1 em caso de sucesso e 0 em caso de falha\n\n");
-				printf("'t': P_Data_Request(char)\n");
-				printf("Solicita a transmissao de 1 byte e recebe o byte a ser transmitido\n\n");
-				printf("'i': P_Data_Indication(void)\n");
-				printf("Testa se ha um byte recebido na camada fisica, retorna 1 caso exista um byte recebido na camada fisica\n\n");
-				printf("'r': P_Data_Receive(void)\n");
-				printf("Busca na camada fisica o ultimo byte recebido e retorna o byte recebido\n\n");
-				printf("'d': P_Deactivate_Request(void)\n");
-				printf("Encerra o canal de comunicacao estabelecido\n\n");
+				printf("'a': P_Activate_Request\n");
+				printf("'t': P_Data_Request\n");
+				printf("'r': P_Data_Receive\n");
+				printf("'d': P_Deactivate_Request\n");
 				printf("'h': Help\n");
 				printf("'s': Sair\n");
-				printf("------------------------------------------------------------------------------------\n");
                     		break;
 
                		case 's':              
                     		exit(1);
-
-
-
 		}
 		scanf("%c",&option);
 	}while(option!='s');

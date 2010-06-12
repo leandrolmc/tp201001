@@ -9,9 +9,11 @@
 #include "enlace.h"
 #include "comutador.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 unsigned char broadcast=255; //endereco de broadcast
+unsigned char my_mac=0; //endereco MAC do host que executar o software de enlace
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
@@ -19,6 +21,12 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 	 * Esse endereço ficará armazenado como variável global e poderá ser acessado pelo proprio 
 	 * host a qualquer tempo
 	 */
+
+	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada
+	if(my_mac!=0){
+		printf("--Failed my_mac ja foi gerado\n");
+		return 0;
+	}
 	my_mac=mac;
 
 	//Gerando uma porta para que o comutador possa contactar o host
@@ -33,6 +41,8 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 	if(!plug_host(my_mac, my_port, my_addr, switch_port, switch_addr)){
 		printf("--Failed plug_host\n");
 	}
+
+	return 1;
 }
 
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
@@ -62,7 +72,8 @@ void L_Set_Loss_Probability(float percent_lost_frame){
 
 void L_Deactivate_Request(void){
 	//TODO ver função unplug_host
-	if(!unplug_host((unsigned char)my_mac)){
+	//printf("my_mac %d\n",atoi(my_mac));
+	if(!unplug_host(my_mac)){
 		printf("--Failed unplug_host\n");
 	}
 }
