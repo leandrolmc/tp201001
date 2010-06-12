@@ -36,10 +36,11 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
 	//Obtendo o endereco IP do host para que o comutador possa contactar o host
 	//TODO my_addr = ??? 
-	char *my_addr = "192.168.1.103";	
+	char *my_addr = "192.168.1.106";	
 
 	if(!plug_host(my_mac, my_port, my_addr)){
 		printf("--Failed plug_host\n");
+		my_mac=0;
 	}
 
 	return 1;
@@ -72,7 +73,6 @@ void L_Set_Loss_Probability(float percent_lost_frame){
 
 void L_Deactivate_Request(void){
 	//TODO ver função unplug_host
-	//printf("my_mac %d\n",atoi(my_mac));
 	if(!unplug_host(my_mac)){
 		printf("--Failed unplug_host\n");
 	}

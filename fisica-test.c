@@ -19,59 +19,61 @@ int main() {
 
 	printf("'a': P_Activate_Request\n");
 	printf("'t': P_Data_Request\n");
-	printf("'r': P_Data_Receive\n");
+	printf("'i': P_Data_Indication\n");
 	printf("'d': P_Deactivate_Request\n");
 	printf("'h': Help\n");
 	printf("'s': Sair\n");
 
 	scanf("%c",&option);
+
 	do{
+		
 		switch(option)
 	      	{
                		case 'a':              
-				printf("Digite porta e endereço destino\n");
+				printf("P_Activate_Request(int, char *)\n");
 				scanf("%d %s", &param_port, param_address);
 
 				if(!P_Activate_Request(param_port, param_address)){
-					option='o';
 					printf("--Failed P_Activate_Request\n");
-					printf("Selecione uma Função\n");
+					P_Deactivate_Request();
+					printf("Selecione uma FunÃ§Ã£o\n");
 					continue;
 				}
 				printf("--Sucess P_Activate_Request %d %s\n",param_port,param_address);
-				printf("Selecione uma Função\n");
+				printf("Selecione uma FunÃ§Ã£o\n");
                     		break;
 
                		case 't':              
 				getchar();
-				printf("Digite o byte a ser enviado\n");
+				printf("P_Data_Request(char)\n");
 				scanf("%c",&byte);
 				P_Data_Request(byte);
-				printf("Selecione uma Função\n");
+				printf("Selecione uma FunÃ§Ã£o\n");
                     		break;
 
-               		case 'r':              
-				byte=P_Data_Receive();
-				if (byte >= '!' && byte <= '~'){
-				  printf("--Sucess P_Receive_Request\n");
+               		case 'i':              
+				printf("P_Data_Indication(void)\n");        
+				
+				if (P_Data_Indication()) {
+				  printf("O Byte recebido foi %c\n",P_Data_Receive());
+				} else {
+				  printf("Nenhum byte recebido\n");
 				}
-				else{
-				  printf("--Failed P_Receive_Request\n");
-				}
-				 printf("Selecione uma Função\n");
+				printf("Selecione uma Função\n");
                     		break;
 
                		case 'd':              
 				printf("P_Deactivate_Request(void)\n");  
 				P_Deactivate_Request();
 				printf("--Sucess P_Deactivate_Request\n");
-				printf("Selecione uma Função\n");
+				printf("Selecione uma FunÃ§Ã£o\n");
                     		break;
 
                		case 'h':              
 				printf("'a': P_Activate_Request\n");
 				printf("'t': P_Data_Request\n");
-				printf("'r': P_Data_Receive\n");
+				printf("'i': P_Data_Indication\n");
 				printf("'d': P_Deactivate_Request\n");
 				printf("'h': Help\n");
 				printf("'s': Sair\n");
@@ -79,8 +81,10 @@ int main() {
 
                		case 's':              
                     		exit(1);
+
 		}
 		scanf("%c",&option);
 	}while(option!='s');
    return 0;
 }
+

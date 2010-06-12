@@ -52,7 +52,7 @@ int plug_host(unsigned char mac, int my_port, char *my_addr){
 
 	// configura a estrutura de dados com o endereco local 
 	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
+	addr.sin_family = PF_INET;
 	addr.sin_addr.s_addr = inet_addr(SWITCH_ADDR); 
 	addr.sin_port = htons(SWITCH_PORT);
  	
@@ -64,6 +64,7 @@ int plug_host(unsigned char mac, int my_port, char *my_addr){
 	bytes_sent = sendto(sockfd, &buffer, strlen(buffer), 0, (struct sockaddr*)&addr, sizeof (struct sockaddr_in));
 	if (bytes_sent < 0) {
 		printf("--Failed Erro no Envio \n");
+		return 0;
 	}
 	close(sockfd); 
 
@@ -118,6 +119,9 @@ int start_switch(){
 	//e todos os hosts devem ter conhecimento disso.
 	//TODO: ESSE ENDERECO DEVE SER REVISTO
 	char *addr="127.0.0.1";
+	//char *addr="192.168.1.100";
+
+
 
 	// cria o descritor de socket para o servico entrega nao-confiavel
 	if ((sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
@@ -127,7 +131,7 @@ int start_switch(){
 
 	// configura a estrutura de dados com o endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
-	local_addr.sin_family = AF_INET;
+	local_addr.sin_family = PF_INET;
 	local_addr.sin_addr.s_addr = inet_addr(addr);
 	local_addr.sin_port = htons(SWITCH_PORT);
 
