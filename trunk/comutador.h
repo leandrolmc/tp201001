@@ -30,7 +30,6 @@ int plug_host(unsigned char ,int , char * ,int ,char *);
  */
 int unplug_host(unsigned char);
 
-
 /* Gera uma porta aleatoria para o comutador de acordo com o numero de enlaces do comutador
  * verifica se essa porta já esta sendo usada e caso afirmativo escolhe outra 
  * Retorna a porta do comutador em caso de sucesso e 0 em caso de falha

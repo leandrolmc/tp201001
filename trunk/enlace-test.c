@@ -39,9 +39,10 @@ int main(){
 
 				if(!L_Activate_Request(mac, SWITCH_PORT,"127.0.0.1")){
 				       printf("--Failed L_Activate_Request\n");					
-				       exit(0);
+				}
+				else{
+					printf("--Sucess L_Activate_Request\n");
 				}		
-				printf("--Sucess L_Activate_Request\n");
 				printf("Selecione uma Função\n");
                     		break;
 
@@ -64,7 +65,7 @@ int main(){
        	            		break;
 			
        	       		case 'd':              
-				P_Deactivate_Request();
+				L_Deactivate_Request();
 				printf("--Sucess L_Deactivate_Request\n");
 				printf("Selecione uma Função\n");
                			break;
