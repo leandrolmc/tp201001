@@ -17,41 +17,35 @@ unsigned char my_mac=0; //endereco MAC do host que executar o software de enlace
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
-/*	/* Cada host irá iniciar o software da camada de enlace definindo o endereço MAC que irá usar. */
-/*	 * Esse endereço ficará armazenado como variável global e poderá ser acessado pelo proprio */
-/*	 * host a qualquer tempo*/
+	/* Cada host irá iniciar o software da camada de enlace definindo o endereço MAC que irá usar. 
+	 * Esse endereço ficará armazenado como variável global e poderá ser acessado pelo proprio 
+	 * host a qualquer tempo
+	 */
 
-/*	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada*/
-/*	if(my_mac!=0){*/
-/*		printf("--Failed my_mac ja foi gerado\n");*/
-/*		return 0;*/
-/*	}*/
-/*	my_mac=mac;*/
+	//Gerando um endereco MAC
+	srand ( time(NULL) );
+	mac = (rand() % 255);
 
-/*	//Gerando uma porta para que o comutador possa contactar o host*/
-/*	int   my_port;  */
-/*	srand ( time(NULL) );*/
-/*	while((my_port = rand() % 9999)<1000);*/
+	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada*/
+	if(my_mac!=0){
+		printf("--Failed my_mac ja foi gerado\n");
+		return 0;
+	}
+	my_mac=mac;
 
-/*	//Obtendo o endereco IP do host para que o comutador possa contactar o host*/
-/*	//TODO my_addr = ??? */
-/*	char *my_addr = "192.168.1.106";	*/
-
-/*	if(!plug_host(my_mac, my_port, my_addr)){*/
-/*		printf("--Failed plug_host\n");*/
-/*		my_mac=0;*/
-/*	}*/
-
+	//inicializando a camada física	
+	if(!P_Activate_Request(SWITCH_PORT, SWITCH_ADDR)){
+		printf("--Failed P_Activate_Request\n");
+		return 0;
+	}
+ 	
+	
 /*
 Pegar o mac
 +inicializar a camada fisica
 +conectar o cabo ao switch
 inicializar propriedades da camada de enlace
 */
-
-
-
-
 
 	return 1;
 }
@@ -82,10 +76,6 @@ void L_Set_Loss_Probability(float percent_lost_frame){
 }
 
 void L_Deactivate_Request(void){
-	//TODO ver função unplug_host
-	if(!unplug_host(my_mac)){
-		printf("--Failed unplug_host\n");
-	}
 }
 
 /* Neste trabalho, o host emissor terá que enviar o quadro para o comutador e este comutador terá que redirecionar o
