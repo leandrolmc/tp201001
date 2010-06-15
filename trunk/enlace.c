@@ -16,6 +16,8 @@
 unsigned char broadcast=255; //endereco de broadcast
 unsigned char my_mac=0; //endereco MAC do host que executar o software de enlace
 
+struct buffer_enlace l_buffer;
+
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
 	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada*/
@@ -31,14 +33,6 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 		return 0;
 	}
  	
-	
-/*
-Pegar o mac
-+inicializar a camada fisica
-+conectar o cabo ao switch
-inicializar propriedades da camada de enlace
-*/
-
 	return 1;
 }
 
@@ -55,11 +49,13 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 }
 
 int L_Data_Indication(){
-	return 1;
+	if (P_Data_Indication() && P_Data_Receive() == '$') return 0; // nenhum frame
+	return 0; // frame recebido
 }
 
 int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
-	return 1;
+return 0;
+
 }
 
 void L_MainLoop(){
@@ -70,6 +66,16 @@ void L_Set_Loss_Probability(float percent_lost_frame){
 
 void L_Deactivate_Request(void){
 }
+
+void l_Recebe_Byte(void) {
+}
+
+void l_Valida_Quadro(void) {
+}
+
+void l_Transmite_Byte(void) {
+}
+
 
 /* Neste trabalho, o host emissor terá que enviar o quadro para o comutador e este comutador terá que redirecionar o
    quadro para o host destino cujo endereço MAC está contido no frame enviado pelo host emissor.
