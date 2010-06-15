@@ -16,7 +16,11 @@
 unsigned char broadcast=255; //endereco de broadcast
 unsigned char my_mac=0; //endereco MAC do host que executar o software de enlace
 
-struct buffer_enlace l_buffer; // buffer de entrada e de saida da camada de enlace
+// buffers de entrada e de saida da camada de enlace
+struct buffer_enlace buf_in; 
+struct buffer_enlace buf_out; 
+
+int frames_buffered = 0;
 
 /* Efetua as inicializacoes do nivel de enlace (recebe o endereco local da maquina) e inicializa o nivel  
  * fisico (recebe a especificacao da porta que sera usada para a comunicacao e o endereco IP do comutador de enlace)
@@ -72,8 +76,8 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
  * Retorna 1 caso exista e 0 caso contrario
  */
 int L_Data_Indication(){
-	if (P_Data_Indication() && P_Data_Receive() == '$') return 0; // nenhum frame
-	return 0; // frame recebido
+	if (buf_in.qtd_disponivel > 0 ) return 1;
+	return 0;
 }
 
 /* Busca no nivel de enlace os dados do ultimo quadro recebido
@@ -114,6 +118,17 @@ void L_Deactivate_Request(void){
  * quando o ultimo byte de um quadro e recebido ele deve ser validado
  */
 void l_Recebe_Byte(void) {
+	if (P_Data_Indication()) {
+		char c = P_Data_Receive();
+		buf_in.pos_atual = buf_in.pos_atual + 1;
+		if (c == '$') {
+			buf_in.buf[buf_in.pos_atual] = '\0';		
+			return;
+		} 
+		buf_in.buf[buf_in.pos_atual] = c;
+		// Vamos ter que ir pegando byte a byte ate montar o quadro ate chegar a $ (final do quadro)
+		// concatenação de string
+	}
 }
 
 /* Valida um quadro recebido, apenas mantem um quadro no buffer de recepcao se for

@@ -32,8 +32,11 @@
 // NNN|NNN|NN|N...50...N|NNN$
 #define FRAME_SIZE 66
 struct buffer_enlace {
-	char in[132];
-	char out[132];
+	char buf[132]; // o buffer em si
+	int pos_atual; // posicao atual
+	int transmissao; // se ainda esta em transmissao
+	int qtd_disponivel; // qts frames no buffer
+	
 };
 
 /*
