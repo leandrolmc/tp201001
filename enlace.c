@@ -46,15 +46,25 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
  */      
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
-	sprintf(buffer, "%d|0|%d|%s|0", mac, SWITCH_PORT, payload);
+	char *buffer;
 
-	printf("entrou L_Data_Request\n");
-/*Teste para ver que as informações estão chegando corretas:*/
-	int mac;
-	mac=(int)mac_dest;
-	printf("mac: %d\n",mac);
-	printf("payload: %s\n",payload);
-	printf("bytes enviados: %d\n",bytes_to_send);
+	//Formando os Frames para serem transmitidos
+	if(mac_dest!=0){
+		//Frame normal: MACORIGEM|MACDESTINO|DADOS|TAMANHODOSDADOS|CODIGOERRO$
+		//TODO fazer codigo de erro
+		sprintf(buffer, "%d|%c|%s|%d|0$",my_mac, mac_dest, payload,strlen(payload));
+	}
+	else{
+		//Frame especial:  MACORIGEM|000|ENDERECOHOST|PORTA|000$
+		sprintf(buffer, "%d|%c|%s|%d|0",my_mac, mac_dest, payload,SWITCH_PORT);
+	}	
+
+/*	/*Teste para ver que as informações estão chegando corretas:*/
+/*	int mac;*/
+/*	mac=(int)mac_dest;*/
+/*	printf("mac: %d\n",mac);*/
+/*	printf("payload: %s\n",payload);*/
+/*	printf("bytes enviados: %d\n",bytes_to_send);*/
 
 }
 
