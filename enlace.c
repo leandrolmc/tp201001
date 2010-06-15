@@ -38,6 +38,8 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
+	sprintf(buffer, "%d|0|%d|%s|0", mac, SWITCH_PORT, payload);
+
 	printf("entrou L_Data_Request\n");
 /*Teste para ver que as informações estão chegando corretas:*/
 	int mac;

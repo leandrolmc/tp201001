@@ -16,6 +16,7 @@
 int main(){
 
 	char option;
+	char *host_addr;
 	char *payload;
 	char *buffer;
 	char *temp;	
@@ -46,16 +47,17 @@ int main(){
 				mac = (rand() % 255);
 
 			        //Enviando o endereço do host dentro do payload do frame especial
-				payload = (char*) malloc (15);
+				//payload = (char*) malloc (15);
+				host_addr  = (char*) malloc (15);
 				buffer  = (char*) malloc (15);
 
 				do{
 					//Durante a ativação da camada de enlace o payload contem somente 
 					//o endereço do host
 					printf("Digite o IP do host\n");
-					//fgets(payload,16,stdin);
-					gets(payload);
-					strcpy (buffer,payload);
+					//gets(payload);
+					gets(host_addr);
+					strcpy (buffer,host_addr);
 					temp = strtok (buffer,".");
 					while (temp != NULL)
 					{
@@ -76,18 +78,18 @@ int main(){
 				       break;
 				}
 				else{
-			                //Criando Frame Especial
-				       	//FRAME ESPECIAL: MACORIGEM|000|PORTA|ENDERECOHOST|000|
+			                //Criando PAYLOAD com MACDESTINO igual a zero (comutador)
+					//e endereco do host
 
-					buffer  = (char*) malloc (FRAME_SIZE);
+					payload  = (char*) malloc (PAYLOAD_SIZE);
 
-					memset(&buffer, 0, strlen(buffer));
-        				sprintf(buffer, "%d|0|%d|%s|0", mac, SWITCH_PORT, payload);
+					memset(&payload, 0, strlen(payload));
+        				sprintf(payload, "0|%s", mac, host_addr);
 
 					///Solicitando a transmissao do frame especial
 					//L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send)
-					bytes_to_send=strlen(buffer);
-					L_Data_Request(0, buffer,bytes_to_send);
+					bytes_to_send=strlen(payload);
+					L_Data_Request(0, payload,bytes_to_send);
 					free(buffer);
 				}	
 				printf("--Sucess L_Activate_Request\n");	
