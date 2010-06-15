@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 unsigned char broadcast=255; //endereco de broadcast
 unsigned char my_mac=0; //endereco MAC do host que executar o software de enlace
@@ -63,7 +64,7 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 		sprintf(buffer, "%d|%c|%s|%d|0",my_mac, mac_dest, payload,SWITCH_PORT);
 	}	
 
-/*	/*Teste para ver que as informações estão chegando corretas:*/
+/*	Teste para ver que as informações estão chegando corretas:*/
 /*	int mac;*/
 /*	mac=(int)mac_dest;*/
 /*	printf("mac: %d\n",mac);*/
