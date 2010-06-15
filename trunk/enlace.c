@@ -16,8 +16,13 @@
 unsigned char broadcast=255; //endereco de broadcast
 unsigned char my_mac=0; //endereco MAC do host que executar o software de enlace
 
-struct buffer_enlace l_buffer;
+struct buffer_enlace l_buffer; // buffer de entrada e de saida da camada de enlace
 
+/* Efetua as inicializacoes do nivel de enlace (recebe o endereco local da maquina) e inicializa o nivel  
+ * fisico (recebe a especificacao da porta que sera usada para a comunicacao e o endereco IP do comutador de enlace)
+ * Faz o bind para a porta escolhida e faz as inicializacoes necessarias para a camada de enlace
+ * Retorna 1 em caso de sucesso e 0 em caso de falha
+ */
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 
 	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada*/
@@ -36,6 +41,9 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
 	return 1;
 }
 
+/* Solicita a transmissao de um quadro
+ * Recebe o endereco MAC de destino, os dados a serem transmitidos e o numero de bytes
+ */      
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
 	sprintf(buffer, "%d|0|%d|%s|0", mac, SWITCH_PORT, payload);
@@ -50,31 +58,63 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
 }
 
+/* Testa se ha um quadro recebido no nivel de enlace
+ * Retorna 1 caso exista e 0 caso contrario
+ */
 int L_Data_Indication(){
 	if (P_Data_Indication() && P_Data_Receive() == '$') return 0; // nenhum frame
 	return 0; // frame recebido
 }
 
+/* Busca no nivel de enlace os dados do ultimo quadro recebido
+ * Recebe ponteiros para variaveis que irao conter
+ * respectivamente, o endereco da estacao que enviou o quadro 
+ * e os dados do quadro recebido
+ * O ultimo parametro e o tamanho maximo esperado para o 
+ * campo de dados do quadro
+ * Retorna o numero de bytes do campo de dados ou −1 no caso
+ * de falha (numero de bytes do quadro maior que o tamanho 
+ * maximo esperado)
+ */     
 int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
 return 0;
 
 }
 
+/* Executa um ciclo de tarefas da camada de enlace e retorna
+ * Deve transmitir um byte para o nivel fısico, caso a estacao
+ * possua um quadro para transmitir
+ * Deve verificar se ha ́um byte para receber no nivel fisico e,
+ * caso exista, receber esse byte
+ */
 void L_MainLoop(){
 }
 
+/* Configura a taxa de perda de quadros da camada de enlace
+ * Recebe o valor percentual de perda de quadros
+ */
 void L_Set_Loss_Probability(float percent_lost_frame){
 }
 
+// Finaliza o funcionamento do nivel de enlace e do nivel fısico
 void L_Deactivate_Request(void){
 }
 
+/* Recebe um byte e armazena no buffer da camada de enlace,
+ * quando o ultimo byte de um quadro e recebido ele deve ser validado
+ */
 void l_Recebe_Byte(void) {
 }
 
+/* Valida um quadro recebido, apenas mantem um quadro no buffer de recepcao se for
+ * destinado a maquina local ou broadcast, e passar na
+ * checagem de erro (usar probabilidade randomica de erro para
+ * “forcar” a ocorrencia de erros)
+ */
 void l_Valida_Quadro(void) {
 }
 
+// Transmite um byte do quadro e checa se terminou a transmissao do quadro 
 void l_Transmite_Byte(void) {
 }
 
