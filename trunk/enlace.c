@@ -8,6 +8,7 @@
 
 #include "enlace.h"
 #include "comutador.h"
+#include "fisica.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -16,15 +17,6 @@ unsigned char broadcast=255; //endereco de broadcast
 unsigned char my_mac=0; //endereco MAC do host que executar o software de enlace
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *switch_addr){
-
-	/* Cada host irá iniciar o software da camada de enlace definindo o endereço MAC que irá usar. 
-	 * Esse endereço ficará armazenado como variável global e poderá ser acessado pelo proprio 
-	 * host a qualquer tempo
-	 */
-
-	//Gerando um endereco MAC
-	srand ( time(NULL) );
-	mac = (rand() % 255);
 
 	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada*/
 	if(my_mac!=0){
@@ -52,12 +44,13 @@ inicializar propriedades da camada de enlace
 
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
+	printf("entrou L_Data_Request\n");
 /*Teste para ver que as informações estão chegando corretas:*/
-/*	int mac;*/
-/*	mac=(int)mac_dest; */
-/*	printf("%d\n",mac);*/
-/*	puts(payload);*/
-/*	printf("%d\n",bytes_to_send);*/
+	int mac;
+	mac=(int)mac_dest;
+	printf("mac: %d\n",mac);
+	printf("payload: %s\n",payload);
+	printf("bytes enviados: %d\n",bytes_to_send);
 
 }
 

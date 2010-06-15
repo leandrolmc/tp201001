@@ -18,7 +18,6 @@ int main(){
 	char option;
 	char *payload;
 	char *buffer;
-	char *host_addr=0;
 	char *temp;	
 	unsigned char mac=0;	
 	int bytes_to_send=0;
@@ -34,24 +33,35 @@ int main(){
 		switch(option)
 	      	{
                		case 'a':      
-				
-				//chamar L_Activate_Request
-				//chamar L_Data_Request para enviar o frame especial
+				getchar();
 				        
+				/* Cada host irá iniciar o software da camada de enlace definindo 
+				 * o endereço MAC que irá usar. 
+				 * Esse endereço ficará armazenado como variável global e poderá ser 
+				 * acessado pelo proprio host a qualquer tempo
+				 */
+
+				//Gerando um endereco MAC
+				srand ( time(NULL) );
+				mac = (rand() % 255);
+
 			        //Enviando o endereço do host dentro do payload do frame especial
 				payload = (char*) malloc (15);
 				buffer  = (char*) malloc (15);
 
 				do{
+					//Durante a ativação da camada de enlace o payload contem somente 
+					//o endereço do host
 					printf("Digite o IP do host\n");
-					fgets(host_addr,16,stdin);
-					strcpy (buffer,host_addr);
+					//fgets(payload,16,stdin);
+					gets(payload);
+					strcpy (buffer,payload);
 					temp = strtok (buffer,".");
 					while (temp != NULL)
 					{
 						if(atoi(temp)>255 || atoi(temp)<0){
 							not_leave=1;
-							printf("end inv\n");
+							printf("--Failed Endereco invalido\n");
 							break;
 						}
 		    				temp = strtok (NULL, ".");
@@ -59,21 +69,26 @@ int main(){
 					}	
 				}while(not_leave);
 
+				free(buffer);
+
 				if(!L_Activate_Request(mac, SWITCH_PORT,SWITCH_ADDR)){
 				       printf("--Failed L_Activate_Request\n");
 				       break;
 				}
 				else{
-                                        //Criando Frame Especial
+			                //Criando Frame Especial
 				       	//FRAME ESPECIAL: MACORIGEM|000|PORTA|ENDERECOHOST|000|
 
-					memset(&payload, 0, strlen(payload));
-        				sprintf(payload, "%d|0|%d|%s|0", mac, SWITCH_PORT, host_addr);
+					buffer  = (char*) malloc (FRAME_SIZE);
+
+					memset(&buffer, 0, strlen(buffer));
+        				sprintf(buffer, "%d|0|%d|%s|0", mac, SWITCH_PORT, payload);
 
 					///Solicitando a transmissao do frame especial
 					//L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send)
-					bytes_to_send=strlen(payload);
-					L_Data_Request(0, payload,bytes_to_send);
+					bytes_to_send=strlen(buffer);
+					L_Data_Request(0, buffer,bytes_to_send);
+					free(buffer);
 				}	
 				printf("--Sucess L_Activate_Request\n");	
 				printf("Selecione uma Função\n");
