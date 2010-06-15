@@ -40,11 +40,12 @@ struct table_switch table_switch[NUMBER_OF_PORTS];
 int start_switch(){
 
 	//Descritor do Socket
-	int sockfd;
+	/*int sockfd;
 
 	struct 	sockaddr_in local_addr; 
+	socklen_t fromlen;	*/
 	ssize_t recsize;
-	socklen_t fromlen;	
+
 
 	char 	buffer[BUFFER_SIZE];
 	char 	*mac_source,
@@ -67,9 +68,9 @@ int start_switch(){
 		printf ("esperando mensagens....\n");
 
 		while(P_Data_Indication()) {
-			char c = P_Data_Receive()
+			char c = P_Data_Receive();
 			printf("O Byte recebido foi %c\n", c);
-			if (c == "$") break;
+			if (c == '$') break;
 			// Vamos ter que ir pegando byte a byte ate montar o quadro ate chegar a $ (final do quadro)
 			// concatenação de string
 		}
