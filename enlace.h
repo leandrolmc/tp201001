@@ -8,9 +8,9 @@
  */
 
 /*
- ***************************************
- *** Estruturas de dados e constantes***
- ***************************************
+ ****************************************
+ *** Estruturas de dados e constantes ***
+ ****************************************
  */
 
 /*
@@ -21,14 +21,20 @@
  *    dados, 
  *    codigo de erro (escolher metodo para deteccao de erro).
  * 
- * FRAME:          MACORIGEM|MACDESTINO|TAMANHODOSDADOS|DADOS|CODIGOERRO|
+ * FRAME:          MACORIGEM|MACDESTINO|TAMANHODOSDADOS|DADOS|CODIGOERRO$
  *
- * FRAME ESPECIAL: MACORIGEM|000|PORTA|ENDERECOHOST|000|
+ * FRAME ESPECIAL: MACORIGEM|000|PORTA|ENDERECOHOST|000$
  */
 
 /*
  * Buffers para armazenar os quadros a serem transmitidos e quadros recebidos.
  */
+// NNN|NNN|NN|N...50...N|NNN$
+#define FRAME_SIZE 66
+struct buffer_enlace {
+	char in[132];
+	char out[132];
+};
 
 /*
  * Endereco broadcast (usar o valor 255) definido em enlace.c
@@ -38,8 +44,9 @@
  * Definir tamanho maximo de dados de um quadro.
  *
  */
+#define TAM_DADOS 50
 
-#define FRAME_SIZE 1536
+
 
 //////////////////////////////////////////
 

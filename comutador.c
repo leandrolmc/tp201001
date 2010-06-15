@@ -39,15 +39,9 @@ struct table_switch table_switch[NUMBER_OF_PORTS];
 
 int start_switch(){
 
-	//Descritor do Socket
-	/*int sockfd;
-
-	struct 	sockaddr_in local_addr; 
-	socklen_t fromlen;	*/
-	ssize_t recsize;
-
 
 	char 	buffer[BUFFER_SIZE];
+	int	pos_buffer;
 	char 	*mac_source,
 		*mac_dest,
 		*data_length,
@@ -66,23 +60,28 @@ int start_switch(){
 	for (;;)  {
 		memset(buffer, 0, sizeof(buffer));
 		printf ("esperando mensagens....\n");
-
+		
+		pos_buffer = 0;
 		while(P_Data_Indication()) {
 			char c = P_Data_Receive();
-			printf("O Byte recebido foi %c\n", c);
-			if (c == '$') break;
+			if (c == '$') {
+				buffer[pos_buffer] = '\0';
+				pos_buffer = 0;			
+				break;
+			} 
+			buffer[++pos_buffer] = c;
 			// Vamos ter que ir pegando byte a byte ate montar o quadro ate chegar a $ (final do quadro)
 			// concatenação de string
 		}
 
 
-		printf("mensagem recebida: %s (%d bytes)\n",buffer,recsize);
+		printf("mensagem recebida: %s (%d bytes)\n",buffer,strlen(buffer));
 
 		mac_dest = strtok (buffer, "|");
 		mac_source = strtok (NULL,"|");
 		data_length = strtok (NULL, "|");
 		data = strtok (NULL, "|");
-		error_code = strtok (NULL, "|");
+		error_code = strtok (NULL, "$");
 
 		//Verifica se o FRAME e especial.
 		//Se for um frame especial significa que o frame veio da funcao plug_host() e portanto
