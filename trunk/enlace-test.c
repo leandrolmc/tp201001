@@ -16,7 +16,7 @@
 int main(){
 
 	char option;
-	char *host_addr;
+	//char *host_addr;
 	char *payload;
 	char *buffer;
 	char *temp;	
@@ -47,17 +47,17 @@ int main(){
 				mac = (rand() % 255);
 
 			        //Enviando o endereço do host dentro do payload do frame especial
-				//payload = (char*) malloc (15);
-				host_addr  = (char*) malloc (15);
+				payload = (char*) malloc (15);
+				//host_addr  = (char*) malloc (15);
 				buffer  = (char*) malloc (15);
 
 				do{
 					//Durante a ativação da camada de enlace o payload contem somente 
 					//o endereço do host
 					printf("Digite o IP do host\n");
-					//gets(payload);
-					gets(host_addr);
-					strcpy (buffer,host_addr);
+					gets(payload);
+					//gets(host_addr);
+					strcpy (buffer,payload);
 					temp = strtok (buffer,".");
 					while (temp != NULL)
 					{
@@ -81,10 +81,10 @@ int main(){
 			                //Criando PAYLOAD com MACDESTINO igual a zero (comutador)
 					//e endereco do host
 
-					payload  = (char*) malloc (PAYLOAD_SIZE);
+					//payload  = (char*) malloc (PAYLOAD_SIZE);
 
-					memset(&payload, 0, strlen(payload));
-        				sprintf(payload, "0|%s", mac, host_addr);
+					//memset(&payload, 0, strlen(payload));
+        				//sprintf(payload, "0|%s", host_addr);
 
 					///Solicitando a transmissao do frame especial
 					//L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send)
