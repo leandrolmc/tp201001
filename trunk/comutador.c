@@ -6,7 +6,6 @@
  *		Rafael de Oliveira Costa
  */
 
-#include "fisica.h"
 #include "comutador.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,10 +15,11 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <unistd.h> 
+#include <sys/poll.h>
 
 //Estrutura que representa a tabela de emulacao das conexoes fisicas com o comutador
 struct table_phy {
-	int port_switch; //socket descriptor?
+	int port_switch;
 	char *mac;
 	int port;
 	char *address;
@@ -27,7 +27,6 @@ struct table_phy {
 
 //Estrutura que representa a tabela de funcionamento normal do comutador
 struct table_switch {
-	//Essa porta do switch remete ao socket(endereco IP, porta) do host ao qual se quer conectar
 	int port_switch;
 	char *mac;
 };
@@ -36,7 +35,73 @@ struct table_switch {
 struct table_phy table_phy[NUMBER_OF_PORTS];
 struct table_switch table_switch[NUMBER_OF_PORTS];
 
+struct sockaddr_in local_addr; // informacoes de endereco local
+int socket_conexoes; // socket responsavel por aguardar as conexoes fisicas
+char buffer_recv[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
+struct pollfd ufds[1]; //Contains information used to poll the status of a transport endpoint
+
+
+void init(void) {
+	int i; // indice generico para auxiliar na iteração dos vetores
+
+	// zerando as tabelas de emulacao
+	for (i = 0; i < NUMBER_OF_PORTS; i++) {
+		memset(&table_phy[i], 0, sizeof(table_phy[i]));
+		memset(&table_switch[i], 0, sizeof(table_switch[i]));
+	}
+
+	// criando o socket
+        if ((socket_conexoes = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+           printf("--Erro na criacao do socket\n");
+           exit(-1);
+        }
+
+	// Definindo informações do endereco local
+	memset(&local_addr, 0, sizeof(local_addr));
+	local_addr.sin_family = AF_INET;
+	local_addr.sin_addr.s_addr = INADDR_ANY;
+	local_addr.sin_port = htons(SWITCH_PORT);
+
+	// associando a porta a maquina local
+        if (bind(socket_conexoes,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
+           printf("--Exit com erro no bind \n");
+           close(socket_conexoes);
+           exit(-1);
+        }
+
+	ufds[0].fd = socket_conexoes;
+	ufds[0].events = POLLIN;
+}
+
+void verifica_conexoes(void) {
+	int resultado = poll(ufds, 1, 1000);
+
+	if (resultado > 0) {
+		if (ufds[0].revents & POLLIN) {
+			recvfrom(socket_conexoes, buffer_recv, sizeof(buffer_recv), 0, (struct sockaddr *)0, 0);
+		}
+		printf("Pacote recebido: %s\n\n", buffer_recv);
+	}
+	else if (resultado == -1) {
+		printf("--erro no poll\n");
+		exit(-1);
+	}
+}
+
 int start_switch(){
+/*
+Loop:
+verifica conexoes
+recebe pacotes
+encaminha pacotes
+envia pacotes
+
+*/
+	init();
+
+	while (1) {
+		verifica_conexoes();
+	}
 
         return 1;
 }
