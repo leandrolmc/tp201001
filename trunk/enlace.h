@@ -30,14 +30,9 @@
  * Buffers para armazenar os quadros a serem transmitidos e quadros recebidos.
  */
 // NNN|NNN|NN|N...50...N|NNN$
-#define FRAME_SIZE 66
-struct buffer_enlace {
-	char buf[132]; // o buffer em si
-	int pos_atual; // posicao atual
-	int transmissao; // se ainda esta em transmissao
-	int qtd_disponivel; // qts frames no buffer
-	
-};
+
+#define FRAME_SIZE 1500
+
 
 /*
  * Endereco broadcast (usar o valor 255) definido em enlace.c
@@ -48,6 +43,9 @@ struct buffer_enlace {
  *
  */
 #define TAM_DADOS 50
+
+
+
 
 
 
@@ -103,15 +101,15 @@ void L_Deactivate_Request(void);
 /* Recebe um byte e armazena no buffer da camada de enlace,
  * quando o ultimo byte de um quadro e recebido ele deve ser validado
  */
-void l_Recebe_Byte(void); 
+void l_Recebe_Byte(void);
 
 /* Valida um quadro recebido, apenas mantem um quadro no buffer de recepcao se for
  * destinado a maquina local ou broadcast, e passar na
  * checagem de erro (usar probabilidade randomica de erro para
  * “forcar” a ocorrencia de erros)
  */
-void l_Valida_Quadro(void); 
+void l_Valida_Quadro(void);
 
-// Transmite um byte do quadro e checa se terminou a transmissao do quadro                            
+// Transmite um byte do quadro e checa se terminou a transmissao do quadro
 void l_Transmite_Byte(void);
 

@@ -17,53 +17,83 @@
 
 unsigned char my_mac;
 
-struct buffer_enlace buffer_enlace;
+//Buffers para armazenar os quadros a serem transmitidos e quadros recebidos
 
-int int2bin(int soma){
+struct buffer_env{
+	//char frame[FRAME_SIZE];
+	char *frame;
+	int empty;
+};
 
-	int result=soma;
-	int paridade=0;
+struct buffer_recv{
+	//char frame[FRAME_SIZE];
+	char *frame;
+	int empty;
+};
+
+struct buffer_env buffer_env[2];
+struct buffer_recv buffer_recv[2];
+
+//Frame Temporario usado para l_Recebe_Bytes
+char frame_temp[FRAME_SIZE];	
+
+void dec2bin(int decimal, char *binary){
+	int k = 0, n = 0;
+	int neg_flag = 0;
+	int remain;
+	int old_decimal;
+	char temp[80];
+
+	// Verifica os negativos
+	if (decimal < 0){
+		decimal = -decimal;
+		neg_flag = 1;
+	}
 
 	do{
-		if(result%2!=0){
-			printf("%d",result%2);
-			if(paridade==0){
-				paridade=1;
-			}
-			else{
-				printf("%d",result%2);
-				paridade=0;
-			}
-			result=result/2;
-		}
-		else{
-			result=result/2;
-		}		
-	}while(result/2>0);
-	printf("\nparidade %d\n",paridade);	
+		old_decimal = decimal;
+		remain = decimal % 2;
+		decimal = decimal / 2;
 
-	return paridade;
+		// convertendo os digitos 0 ou 1 para os caracteres '0' ou '1'
+		temp[k++] = remain + '0';
+	} while (decimal > 0);
 
+	// revertendo a ordem
+	while (k >= 0)
+		binary[n++] = temp[--k];
+		
+	binary[n-1] = 0;
 }
 
 int generate_code_error(char *buffer)
 {
 	int tam_buffer=strlen(buffer);
 	int soma=0;
-	int paridade;
+	int paridade=0;
 	int i;	
+	char binary[80];
 	
+	memset(&binary, 0, sizeof(binary));
 	for(i=0;i<tam_buffer;i++){
-		printf("%c: %d\n",buffer[i],buffer[i]);	
 		soma+=(int)buffer[i];
 	}
 
-	printf("soma: %d\n",soma);	
-
-	paridade = int2bin(soma);
-
-   return paridade;
+	dec2bin(soma,binary);
+	for(i=0;i<strlen(binary);i++){	
+		if(binary[i]=='1'){
+			if(paridade!=0){
+				paridade=0;
+			}	
+			else{
+				paridade=1;
+			}
+		}
+		
+	}
+	return paridade;
 }
+
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
@@ -72,6 +102,19 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 		printf("--Failed my_mac ja foi gerado\n");
 		return 0;
 	}
+
+	//Inicializando os buffers de envio e recebimento
+
+	buffer_env[0].frame = (char*) malloc(FRAME_SIZE);
+	buffer_env[1].frame = (char*) malloc(FRAME_SIZE);
+	buffer_recv[0].frame = (char*) malloc(FRAME_SIZE);
+	buffer_recv[1].frame = (char*) malloc(FRAME_SIZE);
+
+	buffer_env[0].empty=1;
+	buffer_env[1].empty=1;
+	buffer_recv[0].empty=1;
+	buffer_recv[1].empty=1;
+
 	my_mac=mac;
 
 	return 1;
@@ -80,13 +123,19 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
 	char buffer[BUFFER_SIZE];
-	int cod_erro;
 
 	memset(&buffer, 0, sizeof(buffer));
 	sprintf(buffer, "%d|%d|%s|%d", (int)my_mac,(int)mac_dest, payload,strlen(payload));
-	cod_erro=generate_code_error(buffer);	
-	sprintf(buffer, "%s|%d", buffer,cod_erro);
+	sprintf(buffer, "%s|%d", buffer,generate_code_error(buffer));
 
+	if(buffer_env[0].empty==1){
+		buffer_env[0].frame=buffer;
+		buffer_env[0].empty=0;
+	}
+	else{
+		buffer_env[1].frame=buffer;
+		buffer_env[1].empty=0;
+	}
 }
 
 int L_Data_Indication(){
@@ -102,19 +151,46 @@ void L_MainLoop(){
 }
 
 void L_Set_Loss_Probability(float percent_lost_frame){
+	//srand(time(NULL));
+	//mac = (rand()%255);
 }
 
 void L_Deactivate_Request(void){
 }
 
 void l_Recebe_Byte(void) {
+	
+	int i=0;
 
+	memset(&frame_temp, 0, FRAME_SIZE);
+
+	while(P_Data_Indication()) {
+		frame_temp[i]=P_Data_Receive();
+		i++;
+	}
+	l_Valida_Quadro();
+	puts(frame_temp);
 }
 
 void l_Valida_Quadro(void) {
+
 }
 
 void l_Transmite_Byte(void) {
+	int i;
+	if(!buffer_env[0].empty){
+		for(i=0;i<strlen(buffer_env[0].frame);i++){
+			P_Data_Request(buffer_env[0].frame[i]);
+		}
+		buffer_env[0].empty=1;
+	}
+	else if(!buffer_env[1].empty){
+		for(i=0;i<strlen(buffer_env[0].frame);i++){
+			P_Data_Request(buffer_env[0].frame[i]);
+		}
+		buffer_env[1].empty=1;
+	}
+	else{
+		printf("--Failed Nao ha bytes a serem enviados\n");
+	}
 }
-
-
