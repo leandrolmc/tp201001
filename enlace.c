@@ -19,22 +19,50 @@ unsigned char my_mac;
 
 struct buffer_enlace buffer_enlace;
 
+int int2bin(int soma){
+
+	int result=soma;
+	int paridade=0;
+
+	do{
+		if(result%2!=0){
+			printf("%d",result%2);
+			if(paridade==0){
+				paridade=1;
+			}
+			else{
+				printf("%d",result%2);
+				paridade=0;
+			}
+			result=result/2;
+		}
+		else{
+			result=result/2;
+		}		
+	}while(result/2>0);
+	printf("\nparidade %d\n",paridade);	
+
+	return paridade;
+
+}
+
 int generate_code_error(char *buffer)
 {
-//	int temp;
-//	unsigned char bit;
-	//char *cod_bin;
-
-//	temp=atoi(buffer);
-	//cod_bin = (char *) malloc (CHAR_BIT*sizeof(temp)+1);
-
-//	for ( bit = 1 << (CHAR_BIT - 1); bit; bit >>= 1 )
-  // {
-    //  *dst++ = value & bit ? '1' : '0';
-   //}
-   //*dst = '\0';
+	int tam_buffer=strlen(buffer);
+	int soma=0;
+	int paridade;
+	int i;	
 	
-   return 0;
+	for(i=0;i<tam_buffer;i++){
+		printf("%c: %d\n",buffer[i],buffer[i]);	
+		soma+=(int)buffer[i];
+	}
+
+	printf("soma: %d\n",soma);	
+
+	paridade = int2bin(soma);
+
+   return paridade;
 }
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
