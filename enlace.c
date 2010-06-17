@@ -12,9 +12,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <limits.h>
 #include <string.h>
 
 unsigned char my_mac;
+
+struct buffer_enlace buffer_enlace;
+
+int generate_code_error(char *buffer)
+{
+//	int temp;
+//	unsigned char bit;
+	//char *cod_bin;
+
+//	temp=atoi(buffer);
+	//cod_bin = (char *) malloc (CHAR_BIT*sizeof(temp)+1);
+
+//	for ( bit = 1 << (CHAR_BIT - 1); bit; bit >>= 1 )
+  // {
+    //  *dst++ = value & bit ? '1' : '0';
+   //}
+   //*dst = '\0';
+	
+   return 0;
+}
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
@@ -29,6 +50,15 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 }
 
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
+
+	char buffer[BUFFER_SIZE];
+	int cod_erro;
+
+	memset(&buffer, 0, sizeof(buffer));
+	sprintf(buffer, "%d|%d|%s|%d", (int)my_mac,(int)mac_dest, payload,strlen(payload));
+	cod_erro=generate_code_error(buffer);	
+	sprintf(buffer, "%s|%d", buffer,cod_erro);
+
 }
 
 int L_Data_Indication(){
@@ -58,3 +88,5 @@ void l_Valida_Quadro(void) {
 
 void l_Transmite_Byte(void) {
 }
+
+
