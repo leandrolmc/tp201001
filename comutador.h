@@ -7,8 +7,10 @@
  *		Rafael de Oliveira Costa
  */
 
-#define BUFFER_SIZE	128
+#define BUFFER_SIZE	1024
 #define NUMBER_OF_PORTS 32
+
+#define SWITCH_PORT 9000
 
 /* Efetua a inicializacao do comutador 
  * Retorna 1 em caso de sucesso e 0 em caso de falha
