@@ -18,12 +18,15 @@ int main(){
 	char option;
 	unsigned char mac;
 	char *switch_addr;
+	char *message_to_send;
 	char *buffer;
 	char *temp;
 	int switch_port;
+	int mac_temp;
 	int not_leave=0;
 
 	printf("'a': L_Activate_Request\n");
+	printf("'d': L_Data_Request\n");
 	printf("'s': Sair\n");
 
 	scanf("%c",&option);
@@ -31,9 +34,11 @@ int main(){
 		switch(option){
      		case 'a':      
 				getchar();        
-				printf("Digite o MAC\n");
-				scanf("%c",&mac);
-				
+				printf("Digite o MAC do host\n");
+				scanf("%d",&mac_temp);
+				mac=(unsigned char)mac_temp;
+
+				getchar();
 				printf("Digite a porta do comutador\n");
 				scanf("%d",&switch_port);
 
@@ -64,6 +69,23 @@ int main(){
 				}
 
 				printf("--Sucess L_Activate_Request\n");	
+				printf("Selecione uma Função\n");
+            break;
+     		
+			case 'd':      
+				getchar();        
+				printf("Digite o MAC destino\n");
+				scanf("%d",&mac_temp);
+				mac=(unsigned char)mac_temp;
+	
+				getchar();
+				message_to_send  = (char*) malloc (PAYLOAD_SIZE);
+				printf("Digite a mensagem a ser enviada\n");
+				gets(message_to_send);
+
+				L_Data_Request(mac,message_to_send,strlen(message_to_send));
+
+				printf("--Sucess L_Data_Request\n");	
 				printf("Selecione uma Função\n");
             break;
 
