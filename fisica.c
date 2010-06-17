@@ -84,6 +84,7 @@ int P_Activate_Request(int port, char *addr){
  */
 void P_Data_Request(char byte_to_send){
 	sprintf(buffer_send, "%c", byte_to_send); // melhorar essa parte. não mais.
+	printf("caracter: %c\n",byte_to_send);
 
 	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
