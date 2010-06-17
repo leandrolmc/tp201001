@@ -26,32 +26,10 @@
  * FRAME ESPECIAL: ENDERECOHOST|PORTA|MACORIGEM
  */
 
-/*
- * Buffers para armazenar os quadros a serem transmitidos e quadros recebidos.
- */
-// NNN|NNN|NN|N...50...N|NNN$
-
-#define FRAME_SIZE 1500
-
-
-/*
- * Endereco broadcast (usar o valor 255) definido em enlace.c
- */
-
-/*
- * Definir tamanho maximo de dados de um quadro.
- *
- */
-#define TAM_DADOS 50
-
-
-
-
-
-
-//////////////////////////////////////////
-
 #define PAYLOAD_SIZE 128	
+
+#define FRAME_SIZE 142
+
 
 /* Efetua as inicializacoes do nivel de enlace (recebe o endereco local da maquina) e inicializa o nivel  
  * fisico (recebe a especificacao da porta que sera usada para a comunicacao e o endereco IP do comutador de enlace)
