@@ -6,14 +6,21 @@
  *		Rafael de Oliveira Costa
  */
 
-#include "enlace.h"
 #include "comutador.h"
+#include "enlace.h"
 #include "fisica.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <limits.h>
 #include <string.h>
+
+#include <arpa/inet.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <unistd.h> 
+
 
 unsigned char my_mac;
 
@@ -94,6 +101,54 @@ int generate_code_error(char *buffer)
 	return paridade;
 }
 
+void plug_host(int switch_port, char *host_addr) {
+
+	int phy_sd; // descritor do socket
+
+	struct sockaddr_in local_addr; // informacoes de endereco local
+	struct sockaddr_in remote_addr; // informacoes de endereco remoto
+
+	char buffer_send[FRAME_SIZE]; //buffer onde os bytes enviados serão armazenados
+
+	// criando o socket
+        if ((phy_sd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+           printf("--Erro na criacao do socket\n");
+           exit(-1);
+        }
+
+	// Definindo informações do endereco local
+	memset(&local_addr, 0, sizeof(local_addr));
+	local_addr.sin_family = AF_INET;
+	local_addr.sin_addr.s_addr = INADDR_ANY;
+	local_addr.sin_port = htons(switch_port);
+
+	// associando a porta a maquina local
+        if (bind(phy_sd,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
+           printf("--Exit com erro no bind \n");
+           close(phy_sd);
+           exit(-1);
+        } 
+
+	memset(&remote_addr, 0, sizeof(remote_addr));
+	if (host_addr != NULL) {
+		// Definindo informações do endereco remoto
+		remote_addr.sin_family = AF_INET;
+		remote_addr.sin_addr.s_addr = inet_addr(host_addr);
+		remote_addr.sin_port = htons(switch_port);
+	}
+
+	//frame especial
+	sprintf(buffer_send, "%s|%d|%d", "146.164.41.57", switch_port, my_mac);
+
+	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
+		printf("--Erro na transmissão\n");
+		close(phy_sd);
+	}
+	else {
+		printf("-- Dados transmitidos com sucesso.\n");
+	}
+}
+
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
@@ -103,8 +158,13 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 		return 0;
 	}
 
-	//Inicializando os buffers de envio e recebimento
+	my_mac=mac;
 
+	plug_host(SWITCH_PORT, host_addr);
+
+	P_Activate_Request(switch_port, host_addr);
+
+	//Inicializando os buffers de envio e recebimento
 	buffer_env[0].frame = (char*) malloc(FRAME_SIZE);
 	buffer_env[1].frame = (char*) malloc(FRAME_SIZE);
 	buffer_recv[0].frame = (char*) malloc(FRAME_SIZE);
@@ -115,14 +175,12 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	buffer_recv[0].empty=1;
 	buffer_recv[1].empty=1;
 
-	my_mac=mac;
-
 	return 1;
 }
 
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
-	char buffer[BUFFER_SIZE];
+	char buffer[FRAME_SIZE];
 
 	memset(&buffer, 0, sizeof(buffer));
 	sprintf(buffer, "%d|%d|%s|%d", (int)my_mac,(int)mac_dest, payload,strlen(payload));
