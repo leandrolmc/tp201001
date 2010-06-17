@@ -30,12 +30,14 @@ struct buffer_env{
 	//char frame[FRAME_SIZE];
 	char *frame;
 	int empty;
+	int position;
 };
 
 struct buffer_recv{
 	//char frame[FRAME_SIZE];
 	char *frame;
 	int empty;
+	int position;
 };
 
 struct buffer_env buffer_env[2];
@@ -138,7 +140,7 @@ void plug_host(int switch_port, char *host_addr) {
 	}
 
 	//frame especial
-	sprintf(buffer_send, "%s|%d|%d", "146.164.41.57", switch_port, my_mac);
+	sprintf(buffer_send, "%s|%d|%d", "146.164.41.58", switch_port, my_mac);
 
 	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
@@ -146,7 +148,9 @@ void plug_host(int switch_port, char *host_addr) {
 	}
 	else {
 		printf("-- Dados transmitidos com sucesso.\n");
+	   close(phy_sd);
 	}
+
 }
 
 
@@ -174,6 +178,12 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	buffer_env[1].empty=1;
 	buffer_recv[0].empty=1;
 	buffer_recv[1].empty=1;
+
+	buffer_env[0].position=0;
+	buffer_env[1].position=0;
+	buffer_recv[0].position=0;
+	buffer_recv[1].position=0;
+
 
 	return 1;
 }
@@ -205,12 +215,21 @@ int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
 
 }
 
+/* Executa um ciclo de tarefas da camada de enlace e retorna
+ */
+
 void L_MainLoop(){
+
+	//Deve transmitir um byte para o nivel fısico, caso a estacao possua um quadro para transmitir
+	l_Transmite_Byte();
+
+	//Deve verificar se ha ́um byte para receber no nivel fisico e, caso exista, receber esse byte
+	l_Recebe_Byte();
+
+	return;
 }
 
 void L_Set_Loss_Probability(float percent_lost_frame){
-	//srand(time(NULL));
-	//mac = (rand()%255);
 }
 
 void L_Deactivate_Request(void){
@@ -235,20 +254,24 @@ void l_Valida_Quadro(void) {
 }
 
 void l_Transmite_Byte(void) {
-	int i;
 	if(!buffer_env[0].empty){
-		for(i=0;i<strlen(buffer_env[0].frame);i++){
-			P_Data_Request(buffer_env[0].frame[i]);
+		P_Data_Request(buffer_env[0].frame[buffer_env[0].position]);
+		buffer_env[0].position++;
+
+		if( buffer_env[0].position == strlen(buffer_env[0].frame) ){
+			buffer_env[0].empty=1;
 		}
-		buffer_env[0].empty=1;
 	}
 	else if(!buffer_env[1].empty){
-		for(i=0;i<strlen(buffer_env[0].frame);i++){
-			P_Data_Request(buffer_env[0].frame[i]);
+		P_Data_Request(buffer_env[1].frame[buffer_env[1].position]);
+		buffer_env[1].position++;
+
+		if( buffer_env[1].position == strlen(buffer_env[1].frame) ){
+			buffer_env[1].empty=1;
 		}
-		buffer_env[1].empty=1;
 	}
 	else{
 		printf("--Failed Nao ha bytes a serem enviados\n");
 	}
+	return;		
 }
