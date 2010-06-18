@@ -30,7 +30,7 @@ struct table_switch {
 	char *mac;
 };
 
-int last_used_port = -1; // portas fisicas (sequencial). -1 = nenhuma usada.
+int last_port = -1; // portas fisicas (sequencial). -1 = nenhuma usada.
 
 //Declarando as tabelas como variaveis globais
 struct table_phy table_phy[NUMBER_OF_PORTS];
@@ -38,8 +38,10 @@ struct table_switch table_switch[NUMBER_OF_PORTS];
 
 struct sockaddr_in local_addr; // informacoes de endereco local
 int socket_conexoes; // socket responsavel por aguardar as conexoes fisicas
-int socket_comunicacao[NUMBER_OF_PORTS]; // socket responsavel pela comunicacao
 struct pollfd ufds_con[1]; //pollfd para conexoes fisicas
+
+struct sockaddr_in local_addr_comm[NUMBER_OF_PORTS]; // informacoes de endereco local
+int socket_comunicacao[NUMBER_OF_PORTS]; // socket responsavel pela comunicacao
 struct pollfd ufds_comm[NUMBER_OF_PORTS]; //pollfd para comunicacao
 
 char buffer_recv[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
@@ -87,36 +89,36 @@ void verifica_conexoes(void) {
 		if (ufds_con[0].revents & POLLIN) {
 			recvfrom(socket_conexoes, buffer_recv, sizeof(buffer_recv), 0, (struct sockaddr *)0, 0);
 		}
-		last_used_port++;
+		last_port++;
 
-		table_phy[last_used_port].address = strtok(buffer_recv, "|");
-		table_phy[last_used_port].port = atoi(strtok(NULL, "|"));
-		table_phy[last_used_port].mac = atoi(strtok(NULL, "|"));
+		table_phy[last_port].address = strtok(buffer_recv, "|");
+		table_phy[last_port].port = atoi(strtok(NULL, "|"));
+		table_phy[last_port].mac = atoi(strtok(NULL, "|"));
 
-		printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_used_port].mac, table_phy[last_used_port].address, table_phy[last_used_port].port);
+		printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
 		
 		// Criação da conexao de enlace
 		// Criando socket
-		if ((socket_comunicacao[last_used_port] = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+		if ((socket_comunicacao[last_port] = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
 		   printf("--Erro na criacao do socket\n");
 		   exit(-1);
 		}
 		// Definindo informações do endereco local
 		memset(&local_addr, 0, sizeof(local_addr));
-		local_addr.sin_family = AF_INET;
-		local_addr.sin_addr.s_addr = INADDR_ANY;
-		local_addr.sin_port = htons(table_phy[last_used_port].port);
+		local_addr_comm[last_port].sin_family = AF_INET;
+		local_addr_comm[last_port].sin_addr.s_addr = INADDR_ANY;
+		local_addr_comm[last_port].sin_port = htons(table_phy[last_port].port);
 
 		// associando a porta a maquina local
-		if (bind(socket_comunicacao[last_used_port],(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
+		if (bind(socket_comunicacao[last_port],(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
 		   printf("--Exit com erro no bind \n");
-		   close(socket_comunicacao[last_used_port]);
+		   close(socket_comunicacao[last_port]);
 		   exit(-1);
 		}
-		ufds_comm[last_used_port].fd = socket_comunicacao[last_used_port];
-		ufds_comm[last_used_port].events = POLLIN;
+		ufds_comm[last_port].fd = socket_comunicacao[last_port];
+		ufds_comm[last_port].events = POLLIN;
 
-		printf("--Host %d (%s) conectado a porta %d\n", table_phy[last_used_port].mac, table_phy[last_used_port].address, table_phy[last_used_port].port);
+		printf("--Host %d (%s) conectado a porta %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
 	}
 	else if (resultado == -1) {
 		printf("--erro no poll\n");
