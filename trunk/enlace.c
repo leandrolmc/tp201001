@@ -140,7 +140,7 @@ void plug_host(int switch_port, char *host_addr) {
 	}
 
 	//frame especial
-	sprintf(buffer_send, "%s|%d|%d", "146.164.41.58", switch_port, my_mac);
+	sprintf(buffer_send, "%s|%d|%d", "192.168.1.100", switch_port, my_mac);
 
 	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");

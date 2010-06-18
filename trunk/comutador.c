@@ -92,6 +92,8 @@ void verifica_conexoes(void) {
 		table_phy[last_used_port].address = strtok(buffer_recv, "|");
 		table_phy[last_used_port].port = atoi(strtok(NULL, "|"));
 		table_phy[last_used_port].mac = atoi(strtok(NULL, "|"));
+
+		printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_used_port].mac, table_phy[last_used_port].address, table_phy[last_used_port].port);
 		
 		// Criação da conexao de enlace
 		// Criando socket
