@@ -82,7 +82,6 @@ void init(void) {
 }
 
 void verifica_conexoes(void) {
-	printf("aguardando...\n");
 	int resultado = poll(ufds_con, 1, 1000);
 
 	if (resultado > 0) {
@@ -94,8 +93,6 @@ void verifica_conexoes(void) {
 		table_phy[last_port].address = strtok(buffer_recv, "|");
 		table_phy[last_port].port = atoi(strtok(NULL, "|"));
 		table_phy[last_port].mac = atoi(strtok(NULL, "|"));
-
-		printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
 		
 		// Criação da conexao de enlace
 		// Criando socket
@@ -118,7 +115,7 @@ void verifica_conexoes(void) {
 		ufds_comm[last_port].fd = socket_comunicacao[last_port];
 		ufds_comm[last_port].events = POLLIN;
 
-		printf("--Host %d (%s) conectado a porta %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
+		printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
 	}
 	else if (resultado == -1) {
 		printf("--erro no poll\n");
@@ -131,11 +128,13 @@ void recebe_frame(void) {
 	int resultado = poll(ufds_comm, NUMBER_OF_PORTS, 1000);
 
 	if (resultado > 0) {
-		for (i = 0; i < NUMBER_OF_PORTS; i++) {}
+		for (i = 0; i < NUMBER_OF_PORTS; i++) {
 			if (ufds_comm[i].revents & POLLIN) {
 				recvfrom(ufds_comm[i].fd, buffer_recv, sizeof(buffer_recv), 0, (struct sockaddr *)0, 0);
 			}
 		}
+		printf("Frame recebido: %s\n", buffer_recv);
+	}
 	else if (resultado == -1) {
 		printf("--erro no poll\n");
 		exit(-1);
