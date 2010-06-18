@@ -22,19 +22,17 @@
 #include <unistd.h> 
 
 
-unsigned char my_mac;
+unsigned char my_mac=0;
 
 //Buffers para armazenar os quadros a serem transmitidos e quadros recebidos
 
 struct buffer_env{
-	//char frame[FRAME_SIZE];
 	char *frame;
 	int empty;
 	int position;
 };
 
 struct buffer_recv{
-	//char frame[FRAME_SIZE];
 	char *frame;
 	int empty;
 	int position;
@@ -140,7 +138,7 @@ void plug_host(int switch_port, char *host_addr) {
 	}
 
 	//frame especial
-	sprintf(buffer_send, "%s|%d|%d", "192.168.1.100", switch_port, my_mac);
+	sprintf(buffer_send, "%s|%d|%d", "192.168.56.1", switch_port, my_mac);
 
 	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
@@ -170,9 +168,13 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
 	//Inicializando os buffers de envio e recebimento
 	buffer_env[0].frame = (char*) malloc(FRAME_SIZE);
+	memset(&buffer_env[0], 0, FRAME_SIZE);
 	buffer_env[1].frame = (char*) malloc(FRAME_SIZE);
+	memset(&buffer_env[1], 0, FRAME_SIZE);
 	buffer_recv[0].frame = (char*) malloc(FRAME_SIZE);
+	memset(&buffer_recv[0], 0, FRAME_SIZE);
 	buffer_recv[1].frame = (char*) malloc(FRAME_SIZE);
+	memset(&buffer_recv[1], 0, FRAME_SIZE);
 
 	buffer_env[0].empty=1;
 	buffer_env[1].empty=1;
@@ -192,17 +194,24 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
 	char buffer[FRAME_SIZE];
 
-	memset(&buffer, 0, sizeof(buffer));
+	//char *buffer;
+	//buffer = (char*) malloc(FRAME_SIZE);
+	//memset(&buffer, 0, FRAME_SIZE);
+
 	sprintf(buffer, "%d|%d|%s|%d", (int)my_mac,(int)mac_dest, payload,strlen(payload));
 	sprintf(buffer, "%s|%d", buffer,generate_code_error(buffer));
 
 	if(buffer_env[0].empty==1){
 		buffer_env[0].frame=buffer;
+		//strcpy (buffer_env[0].frame,buffer);
 		buffer_env[0].empty=0;
+		buffer_env[0].position=0;
 	}
 	else{
 		buffer_env[1].frame=buffer;
+		//strcpy (buffer_env[1].frame,buffer);
 		buffer_env[1].empty=0;
+		buffer_env[0].position=0;
 	}
 }
 
@@ -215,16 +224,12 @@ int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
 
 }
 
-/* Executa um ciclo de tarefas da camada de enlace e retorna
- */
-
 void L_MainLoop(){
 
-	//Deve transmitir um byte para o nivel fısico, caso a estacao possua um quadro para transmitir
 	l_Transmite_Byte();
 
 	//Deve verificar se ha ́um byte para receber no nivel fisico e, caso exista, receber esse byte
-	l_Recebe_Byte();
+	//l_Recebe_Byte();
 
 	return;
 }
@@ -254,24 +259,30 @@ void l_Valida_Quadro(void) {
 }
 
 void l_Transmite_Byte(void) {
-	if(!buffer_env[0].empty){
-		P_Data_Request(buffer_env[0].frame[buffer_env[0].position]);
-		buffer_env[0].position++;
-
-		if( buffer_env[0].position == strlen(buffer_env[0].frame) ){
-			buffer_env[0].empty=1;
-		}
-	}
-	else if(!buffer_env[1].empty){
-		P_Data_Request(buffer_env[1].frame[buffer_env[1].position]);
-		buffer_env[1].position++;
-
-		if( buffer_env[1].position == strlen(buffer_env[1].frame) ){
-			buffer_env[1].empty=1;
-		}
+	if(my_mac==0){
+		return;
 	}
 	else{
-		printf("--Failed Nao ha bytes a serem enviados\n");
+		if(!buffer_env[0].empty){
+			P_Data_Request(buffer_env[0].frame[buffer_env[0].position]);
+			buffer_env[0].position++;
+
+			if( buffer_env[0].position == strlen(buffer_env[0].frame) ){		
+				buffer_env[0].empty=1;
+				buffer_env[0].position=0;
+				memset(&buffer_env[0], 0, sizeof(buffer_env[0].frame));
+			}
+		}
+		else if(!buffer_env[1].empty){
+			P_Data_Request(buffer_env[1].frame[buffer_env[1].position]);
+			buffer_env[1].position++;
+
+			if( buffer_env[1].position == strlen(buffer_env[1].frame) ){
+				buffer_env[1].empty=1;
+				buffer_env[0].position=0;
+				memset(&buffer_env[0], 0, sizeof(buffer_env[0].frame));
+			}
+		}
 	}
 	return;		
 }

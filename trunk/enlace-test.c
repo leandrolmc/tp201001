@@ -15,35 +15,7 @@
 #include <sys/poll.h>
 #include <unistd.h>
 
-
-/*
-int main()
-{
-	struct pollfd input;
-	char buffer[BUFFERSIZE];
-	int n, m;
-	
-	input.fd      = 0;
-	input.events  = POLLIN | POLLPRI;
-	input.revents = 0;
-	
-	while (1) {
-		n = poll(&input, 1, 1000);
-		printf("poll returned with result = %d and revents = %d.\n",
-		       n, input.revents);
-		if (n > 0) {
-			m = read(0, buffer, sizeof(buffer));
-			printf("read returned %d.\n", m);
-			if  (m == 0)
-				break;
-		}
-	}
-	return 0;
-}
-*/
-
 void menu(char option){
-
 
 	unsigned char mac;
 	char *switch_addr;
