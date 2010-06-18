@@ -19,7 +19,6 @@
 
 //Estrutura que representa a tabela de emulacao das conexoes fisicas com o comutador
 struct table_phy {
-//	int port_switch;
 	unsigned char mac;
 	int port;
 	char *address;
@@ -39,9 +38,9 @@ struct table_switch table_switch[NUMBER_OF_PORTS];
 
 struct sockaddr_in local_addr; // informacoes de endereco local
 int socket_conexoes; // socket responsavel por aguardar as conexoes fisicas
-int socket_comunicacao; // socket responsavel pela comunicacao
+int socket_comunicacao[NUMBER_OF_PORTS]; // socket responsavel pela comunicacao
 struct pollfd ufds_con[1]; //pollfd para conexoes fisicas
-struct pollfd ufds_comm[1]; //pollfd para comunicacao
+struct pollfd ufds_comm[NUMBER_OF_PORTS]; //pollfd para comunicacao
 
 char buffer_recv[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
 char buffer_env[BUFFER_SIZE]; //buffer onde os bytes enviados serão armazenados
@@ -62,10 +61,6 @@ void init(void) {
            printf("--Erro na criacao do socket\n");
            exit(-1);
         }
-        if ((socket_comunicacao = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-           printf("--Erro na criacao do socket\n");
-           exit(-1);
-        }
 
 	// Definindo informações do endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
@@ -82,12 +77,10 @@ void init(void) {
 
 	ufds_con[0].fd = socket_conexoes;
 	ufds_con[0].events = POLLIN;
-
-	ufds_comm[0].fd = socket_comunicacao;
-	ufds_comm[0].events = POLLIN;
 }
 
 void verifica_conexoes(void) {
+	printf("aguardando...\n");
 	int resultado = poll(ufds_con, 1, 1000);
 
 	if (resultado > 0) {
@@ -99,6 +92,29 @@ void verifica_conexoes(void) {
 		table_phy[last_used_port].address = strtok(buffer_recv, "|");
 		table_phy[last_used_port].port = atoi(strtok(NULL, "|"));
 		table_phy[last_used_port].mac = atoi(strtok(NULL, "|"));
+		
+		// Criação da conexao de enlace
+		// Criando socket
+		if ((socket_comunicacao[last_used_port] = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+		   printf("--Erro na criacao do socket\n");
+		   exit(-1);
+		}
+		// Definindo informações do endereco local
+		memset(&local_addr, 0, sizeof(local_addr));
+		local_addr.sin_family = AF_INET;
+		local_addr.sin_addr.s_addr = INADDR_ANY;
+		local_addr.sin_port = htons(table_phy[last_used_port].port);
+
+		// associando a porta a maquina local
+		if (bind(socket_comunicacao[last_used_port],(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
+		   printf("--Exit com erro no bind \n");
+		   close(socket_comunicacao[last_used_port]);
+		   exit(-1);
+		}
+		ufds_comm[last_used_port].fd = socket_comunicacao[last_used_port];
+		ufds_comm[last_used_port].events = POLLIN;
+
+		printf("--Host %d (%s) conectado a porta %d\n", table_phy[last_used_port].mac, table_phy[last_used_port].address, table_phy[last_used_port].port);
 	}
 	else if (resultado == -1) {
 		printf("--erro no poll\n");
@@ -107,6 +123,19 @@ void verifica_conexoes(void) {
 }
 
 void recebe_frame(void) {
+	int i;
+	int resultado = poll(ufds_comm, NUMBER_OF_PORTS, 1000);
+
+	if (resultado > 0) {
+		for (i = 0; i < NUMBER_OF_PORTS; i++) {}
+			if (ufds_comm[i].revents & POLLIN) {
+				recvfrom(ufds_comm[i].fd, buffer_recv, sizeof(buffer_recv), 0, (struct sockaddr *)0, 0);
+			}
+		}
+	else if (resultado == -1) {
+		printf("--erro no poll\n");
+		exit(-1);
+	}
 	
 }
 
