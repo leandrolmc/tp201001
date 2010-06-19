@@ -101,7 +101,7 @@ void P_Data_Request(char byte_to_send){
  * Retorna 1 em caso exista um byte recebido na camada física
  */
 int P_Data_Indication(void){
-	int resultado = poll(ufds, sizeof(ufds), 10000);
+	int resultado = poll(ufds, sizeof(ufds), 1000);
 	if (resultado == -1) {
 		printf("--erro no poll\n");
 		return 0;

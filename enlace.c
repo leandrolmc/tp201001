@@ -283,9 +283,6 @@ void l_Recebe_Byte(void) {
 				printf("-- recebendo byte\n");
 			}
 		}
-		else{
-			printf("--Failed Nao tem byte pra receber\n");
-		}
 	}
 	return;	
 }
