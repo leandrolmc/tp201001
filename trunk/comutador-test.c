@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 int main(){
+	printf("--Iniciando comutador...")
 
 	if(!start_switch()){
 		printf("--Failed start_switch\n");

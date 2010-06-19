@@ -263,7 +263,7 @@ void l_Recebe_Byte(void) {
 			if( (buffer_recv[0].empty) && (ch_recv!='$')){
 				buffer_recv[0].frame[buffer_recv[0].position]=ch_recv;
 				buffer_recv[0].position++;
-				printf("-- recebendo byte\n");
+				printf("-- recebendo byte %c\n", ch_recv);
 			}
 			else if( (buffer_recv[0].empty) && ch_recv=='$'){
 				buffer_recv[0].empty=0;			
@@ -280,7 +280,7 @@ void l_Recebe_Byte(void) {
 			else{
 				buffer_recv[1].frame[buffer_recv[1].position]=ch_recv;
 				buffer_recv[1].position++;
-				printf("-- recebendo byte\n");
+				printf("-- recebendo byte %c\n", ch_recv);
 			}
 		}
 	}
