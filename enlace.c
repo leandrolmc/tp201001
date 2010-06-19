@@ -264,8 +264,8 @@ void l_Recebe_Byte(void) {
 			ch_recv=P_Data_Receive();
 			if(buffer_recv[0].empty){
 				buffer_recv[0].frame[buffer_recv[0].position]=ch_recv;
-				buffer_recv[0].position++;
-				printf("-- Byte \'%c\'recebido com sucesso\n", ch_recv);
+				printf("-- Byte \'%c\'recebido com sucesso\n", buffer_recv[0].frame[buffer_recv[0].position]);
+				buffer_recv[0].position++;		
 				if (ch_recv == '$') {
 					buffer_recv[0].empty=0;
 					l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;

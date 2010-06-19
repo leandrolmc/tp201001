@@ -34,12 +34,11 @@ void menu(char option){
 
 	switch(option){
   		case 'a':      
-			//getchar();        
+			getchar();        
 			printf("Digite o MAC do host\n");
 			scanf("%d",&mac_temp);
 			mac=(unsigned char)mac_temp;
 
-			//getchar();
 			printf("Digite a porta do comutador\n");
 			scanf("%d",&switch_port);
 
@@ -76,7 +75,7 @@ void menu(char option){
 			break;
 
 		case 'i':
-			//getchar();
+			getchar();
 			indicacao_frame = L_Data_Indication();
 			if(!indicacao_frame){
 				printf("nao ");
@@ -84,12 +83,12 @@ void menu(char option){
 			printf("existe um quadro recebido na camada de enlace\n");
 
 		case 'd':
-			//getchar();        
+			getchar();        
 			printf("Digite o MAC destino\n");
 			scanf("%d",&mac_temp);
 			mac=(unsigned char)mac_temp;
 
-			//getchar();
+			getchar();
 			message_to_send  = (char*) malloc (PAYLOAD_SIZE * sizeof(char));
 			printf("Digite a mensagem a ser enviada\n");
 			getchar();
