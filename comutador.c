@@ -235,8 +235,11 @@ void verifica_frame() {
 void envia_frame() {
 	int i;
 	struct sockaddr_in remote_addr;
+
+	char temp_buffer[1];
 	
 	if (buffer_env.full) {
+	temp_buffer[0] = buffer_env.buf[buffer_env.pos];
 
 	for (i = 0; i < NUMBER_OF_PORTS; i++) {
 		if ((porta_destino == i) || (porta_destino == TODAS_PORTAS && porta_origem != i)) {
@@ -248,14 +251,18 @@ void envia_frame() {
 			remote_addr.sin_addr.s_addr = inet_addr(table_phy[i].address);
 			remote_addr.sin_port = htons(table_phy[i].port);
 
-			if ((sendto(socket_comunicacao[i], buffer_env.buf, strlen(buffer_env.buf), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
+			if ((sendto(socket_comunicacao[i], temp_buffer, sizeof(temp_buffer), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 				printf("--Erro na transmissão\n");
 				close(socket_comunicacao[i]);
 			}
 			else {
 				printf("-- Dados transmitidos com sucesso.\n");
-				buffer_env.full = 0;
-			   close(socket_comunicacao[i]);
+				buffer_env.pos++;
+				if (temp_buffer[0] == '$') {
+					buffer_env.pos = 0;
+					buffer_env.full = 0;
+				}
+				close(socket_comunicacao[i]);
 			}
 		}
 	}
