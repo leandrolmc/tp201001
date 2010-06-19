@@ -239,11 +239,8 @@ int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
 }
 
 void L_MainLoop(){
-
 	l_Transmite_Byte();
 	l_Recebe_Byte();
-
-	return;
 }
 
 void L_Set_Loss_Probability(float percent_lost_frame){
@@ -262,27 +259,31 @@ void l_Recebe_Byte(void) {
 	else{
 		if(P_Data_Indication()){
 			ch_recv=P_Data_Receive();
-			if( (buffer_recv[0].empty) && (ch_recv!='$')){
+			if(buffer_recv[0].empty){
 				buffer_recv[0].frame[buffer_recv[0].position]=ch_recv;
 				buffer_recv[0].position++;
-				printf("-- recebendo byte %c. Guarda no buffer 0 posicao %d\n", ch_recv, buffer_recv[0].position-1);
+				printf("-- Byte \'%c\'recebido com sucesso\n", ch_recv);
+				if (ch_recv == '$') {
+					buffer_recv[0].empty=0;			
+					buffer_recv[0].position=0;
+					l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
+					printf("-- Frame completamente recebido.\n");
+					printf("-- Frame recebido na camada de enlace: %s", buffer_recv[0].frame);
+				}
+				
 			}
-			else if( (buffer_recv[0].empty) && ch_recv=='$'){
-				buffer_recv[0].empty=0;			
-				buffer_recv[0].position=0;
-				l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
-				printf("-- frame completamente recebido\n");
-			} 
-			else if( (buffer_recv[1].empty) && ch_recv=='$'){
-				buffer_recv[1].empty=0;		
-				buffer_recv[1].position=0;	
-				l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
-				printf("-- frame completamente recebido\n");
-			}
-			else{
+			else if(buffer_recv[1].empty){
 				buffer_recv[1].frame[buffer_recv[1].position]=ch_recv;
 				buffer_recv[1].position++;
-				printf("-- recebendo byte %c. Guarda no buffer 1 posicao %d\n", ch_recv, buffer_recv[1].position-1);
+				printf("-- Byte \'%c\'recebido com sucesso\n", ch_recv);
+				if (ch_recv == '$') {
+					buffer_recv[1].empty=0;			
+					buffer_recv[1].position=0;
+					l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
+					printf("-- Frame completamente recebido.\n");
+					printf("-- Frame recebido na camada de enlace: %s", buffer_recv[1].frame);
+				}
+				
 			}
 		}
 	}
