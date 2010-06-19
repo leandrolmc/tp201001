@@ -15,6 +15,8 @@
 #include <sys/poll.h>
 #include <unistd.h>
 
+int indicacao_frame;
+
 void menu(char option){
 
 	unsigned char mac;
@@ -26,18 +28,22 @@ void menu(char option){
 	int mac_temp;
 	int not_leave=0;
 
+	unsigned char mac_source;
+	char *frame_recv;
+	int max_frame;
+
 	switch(option){
   		case 'a':      
-			getchar();        
+			//getchar();        
 			printf("Digite o MAC do host\n");
 			scanf("%d",&mac_temp);
 			mac=(unsigned char)mac_temp;
 
-			getchar();
+			//getchar();
 			printf("Digite a porta do comutador\n");
 			scanf("%d",&switch_port);
 
-			getchar();
+			//getchar();
 			switch_addr  = (char*) malloc (15);
 			buffer  = (char*) malloc (15);
 			do{
@@ -69,19 +75,20 @@ void menu(char option){
 			break;
 
 		case 'i':
-			getchar();
-			if(!L_Data_Indication()){
+			//getchar();
+			indicacao_frame = L_Data_Indication();
+			if(!indicacao_frame){
 				printf("nao ");
 			}        
-				printf("existe um quadro recebido na camada de enlace\n");
+			printf("existe um quadro recebido na camada de enlace\n");
 
 		case 'd':
-			getchar();        
+			//getchar();        
 			printf("Digite o MAC destino\n");
 			scanf("%d",&mac_temp);
 			mac=(unsigned char)mac_temp;
 
-			getchar();
+			//getchar();
 			message_to_send  = (char*) malloc (PAYLOAD_SIZE * sizeof(char));
 			printf("Digite a mensagem a ser enviada\n");
 			fgets(message_to_send, PAYLOAD_SIZE, stdin);
@@ -91,6 +98,16 @@ void menu(char option){
 
 			printf("--Sucess L_Data_Request\n");	
 			printf("Selecione uma Função\n");
+			break;
+		case 'r':
+			if (indicacao_frame) {
+				// ainda falta!!!
+				L_Data_Receive(&mac_source, frame_recv, max_frame);
+				printf("A mensagem recebida do mac %d foi: %s", mac_source, frame_recv);
+			}
+			else {
+				printf("Verifique antes de tentar receber!\n");
+			}
 			break;
 
 		case 's':            
@@ -130,6 +147,7 @@ int main(){
 		printf("'a': L_Activate_Request\n");
 		printf("'i': L_Data_Indication\n");
 		printf("'d': L_Data_Request\n");
+		printf("'r': L_Data_Receive\n");
 		printf("'s': Sair\n");
 
 		while (!kbhit()) {
