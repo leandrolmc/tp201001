@@ -43,11 +43,12 @@ void menu(char option){
 			printf("Digite a porta do comutador\n");
 			scanf("%d",&switch_port);
 
-			//getchar();
+			
 			switch_addr  = (char*) malloc (15);
 			buffer  = (char*) malloc (15);
 			do{
 				printf("Digite o IP do comutador\n");
+				getchar();
 				fgets(switch_addr, 15, stdin);
 				switch_addr[strlen(switch_addr)-1] = '\0';
 				strcpy (buffer,switch_addr);
