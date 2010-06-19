@@ -38,11 +38,15 @@ struct buffer_recv{
 	int position;
 };
 
+//struct buffer_temp{
+//	char frame[FRAME_SIZE];
+//	int full;
+//	int position;
+//};
+
 struct buffer_env buffer_env[2];
 struct buffer_recv buffer_recv[2];
-
-//Frame Temporario usado para l_Recebe_Bytes
-char frame_temp[FRAME_SIZE];	
+//struct buffer_temp buffer_temp;//Frame Temporario usado para l_Recebe_Bytes
 
 void dec2bin(int decimal, char *binary){
 	int k = 0, n = 0;
@@ -182,6 +186,10 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	buffer_recv[0].position=0;
 	buffer_recv[1].position=0;
 
+	//Inicializando o buffer temporario
+	//memset(&buffer_temp.frame, 0, FRAME_SIZE);
+	//buffer_temp.full=0;
+	//buffer_temp.position=0;
 
 	return 1;
 }
@@ -207,11 +215,22 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 	}
 }
 
+/* Testa se ha um quadro recebido no nivel de enlace
+ * Retorna 1 caso exista e 0 caso contrario
+ */
 int L_Data_Indication(){
+		if(!buffer_recv[0].empty){
+			return 1;
+		}
+		else if( (buffer_recv[0].empty) && (!buffer_recv[1].empty) ){
+			strcpy(buffer_recv[0].frame,buffer_recv[1].frame);
+			return 1;		
+		}
 	return 0;
 }
 
 int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
+
 	return 0;
 
 }
@@ -219,9 +238,7 @@ int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
 void L_MainLoop(){
 
 	l_Transmite_Byte();
-
-	//Deve verificar se ha ́um byte para receber no nivel fisico e, caso exista, receber esse byte
-	//l_Recebe_Byte();
+	l_Recebe_Byte();
 
 	return;
 }
@@ -232,22 +249,21 @@ void L_Set_Loss_Probability(float percent_lost_frame){
 void L_Deactivate_Request(void){
 }
 
+/* Recebe um byte e armazena no buffer da camada de enlace,
+ * quando o ultimo byte de um quadro e recebido ele deve ser validado
+ */
 void l_Recebe_Byte(void) {
-	
-	int i=0;
-
-	memset(&frame_temp, 0, FRAME_SIZE);
-
-	while(P_Data_Indication()) {
-		frame_temp[i]=P_Data_Receive();
-		i++;
+	if(my_mac==0){
+		return;
 	}
-	l_Valida_Quadro();
-	puts(frame_temp);
+	else{
+	}
+	return;	
+	//l_Valida_Quadro();
+	//puts(frame_temp);
 }
 
 void l_Valida_Quadro(void) {
-
 }
 
 void l_Transmite_Byte(void) {
