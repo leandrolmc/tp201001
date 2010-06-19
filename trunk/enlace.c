@@ -40,15 +40,10 @@ struct buffer_recv{
 	int position;
 };
 
-//struct buffer_temp{
-//	char frame[FRAME_SIZE];
-//	int full;
-//	int position;
-//};
-
 struct buffer_env buffer_env[2];
 struct buffer_recv buffer_recv[2];
-//struct buffer_temp buffer_temp;//Frame Temporario usado para l_Recebe_Bytes
+
+float taxa_perda_quadros;
 
 void dec2bin(int decimal, char *binary){
 	int k = 0, n = 0;
@@ -163,6 +158,8 @@ void plug_host(int switch_port, char *host_addr) {
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
+	float percent_lost_frame;
+
 	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada*/
 	if(my_mac!=0){
 		printf("--Failed my_mac ja foi gerado\n");
@@ -191,10 +188,11 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	buffer_recv[0].position=0;
 	buffer_recv[1].position=0;
 
-	//Inicializando o buffer temporario
-	//memset(&buffer_temp.frame, 0, FRAME_SIZE);
-	//buffer_temp.full=0;
-	//buffer_temp.position=0;
+	//Inicializa o valor da variavel taxa_perda_quadros
+	srand ( time(NULL) );
+	percent_lost_frame=(rand() % 100);//valor entre 0 e 1
+	percent_lost_frame=percent_lost_frame/100;
+	L_Set_Loss_Probability(percent_lost_frame);
 
 	return 1;
 }
@@ -241,7 +239,12 @@ void L_MainLoop(){
 	l_Recebe_Byte();
 }
 
+//* Configura a taxa de perda de quadros da camada de enlace
+ //* Recebe o valor percentual de perda de quadros
+//L_Set_Loss_Probability() será chamada próximo da inicialização da camada de enlace (logo depois da Activate, por //exemplo). Isso vai salvar o valor passado como parâmetro junto com os outros valores que a camada de enlace usa.
+
 void L_Set_Loss_Probability(float percent_lost_frame){
+	taxa_perda_quadros = percent_lost_frame;
 }
 
 void L_Deactivate_Request(void){
