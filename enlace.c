@@ -142,7 +142,7 @@ void plug_host(int switch_port, char *host_addr) {
 	}
 
 	//frame especial
-	sprintf(buffer_send, "%s|%d|%d", "192.168.56.1", switch_port, my_mac);
+	sprintf(buffer_send, "%s|%d|%d", "192.168.1.100", switch_port, my_mac);
 
 	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
@@ -199,7 +199,7 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 	char buffer[FRAME_SIZE];
 
 	sprintf(buffer, "%d|%d|%s|%d", (int)my_mac,(int)mac_dest, payload,strlen(payload));
-	sprintf(buffer, "%s|%d", buffer,generate_code_error(buffer));
+	sprintf(buffer, "%s|%d$", buffer,generate_code_error(buffer));
 
 	if(buffer_env[0].empty==1){
 		//buffer_env[0].frame=buffer;
