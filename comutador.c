@@ -107,7 +107,7 @@ void verifica_conexoes(void) {
 		local_addr_comm[last_port].sin_port = htons(table_phy[last_port].port);
 
 		// associando a porta a maquina local
-		if (bind(socket_comunicacao[last_port],(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
+		if (bind(socket_comunicacao[last_port],(struct sockaddr *)&local_addr_comm[last_port], sizeof(struct sockaddr)) < 0) {
 		   printf("--Exit com erro no bind \n");
 		   close(socket_comunicacao[last_port]);
 		   exit(-1);
