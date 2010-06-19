@@ -206,6 +206,8 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 	sprintf(buffer, "%d|%d|%s|%d", (int)my_mac,(int)mac_dest, payload,strlen(payload));
 	sprintf(buffer, "%s|%d$", buffer,generate_code_error(buffer));
 
+	printf("Camada de enlace pronta para enviar o frame: %s\n", buffer);
+
 	if(buffer_env[0].empty==1){
 		//buffer_env[0].frame=buffer;
 		strcpy (buffer_env[0].frame,buffer);
