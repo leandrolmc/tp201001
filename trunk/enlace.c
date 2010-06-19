@@ -27,13 +27,13 @@ unsigned char my_mac=0;
 //Buffers para armazenar os quadros a serem transmitidos e quadros recebidos
 
 struct buffer_env{
-	char *frame;
+	char frame[FRAME_SIZE];
 	int empty;
 	int position;
 };
 
 struct buffer_recv{
-	char *frame;
+	char frame[FRAME_SIZE];
 	int empty;
 	int position;
 };
@@ -167,16 +167,9 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	P_Activate_Request(switch_port, host_addr);
 
 	//Inicializando os buffers de envio e recebimento
-	buffer_env[0].frame = (char *)malloc(FRAME_SIZE * sizeof(char));
 	memset(&buffer_env[0].frame, 0, FRAME_SIZE);
-
-	buffer_env[1].frame = (char *)malloc(FRAME_SIZE * sizeof(char));
 	memset(&buffer_env[1].frame, 0, FRAME_SIZE);
-
-	buffer_recv[0].frame = (char *)malloc(FRAME_SIZE * sizeof(char));
 	memset(&buffer_recv[0].frame, 0, FRAME_SIZE);
-
-	buffer_recv[1].frame = (char *)malloc(FRAME_SIZE * sizeof(char));
 	memset(&buffer_recv[1].frame, 0, FRAME_SIZE);
 
 	buffer_env[0].empty=1;
@@ -195,11 +188,7 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
-	//char buffer[FRAME_SIZE];
-
-	char *buffer;
-	buffer = (char*) malloc(FRAME_SIZE);
-	memset(&buffer, 0, FRAME_SIZE);
+	char buffer[FRAME_SIZE];
 
 	sprintf(buffer, "%d|%d|%s|%d", (int)my_mac,(int)mac_dest, payload,strlen(payload));
 	sprintf(buffer, "%s|%d", buffer,generate_code_error(buffer));
