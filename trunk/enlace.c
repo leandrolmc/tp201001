@@ -120,7 +120,7 @@ void plug_host(int switch_port, char *host_addr) {
 	memset(&local_addr, 0, sizeof(local_addr));
 	local_addr.sin_family = AF_INET;
 	local_addr.sin_addr.s_addr = INADDR_ANY;
-	local_addr.sin_port = htons(switch_port);
+	local_addr.sin_port = htons(SWITCH_PORT);
 
 	// associando a porta a maquina local
         if (bind(phy_sd,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
@@ -134,7 +134,7 @@ void plug_host(int switch_port, char *host_addr) {
 		// Definindo informações do endereco remoto
 		remote_addr.sin_family = AF_INET;
 		remote_addr.sin_addr.s_addr = inet_addr(host_addr);
-		remote_addr.sin_port = htons(switch_port);
+		remote_addr.sin_port = htons(SWITCH_PORT);
 	}
 
 	//frame especial
@@ -162,7 +162,7 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
 	my_mac=mac;
 
-	plug_host(SWITCH_PORT, host_addr);
+	plug_host(switch_port, host_addr);
 
 	P_Activate_Request(switch_port, host_addr);
 
