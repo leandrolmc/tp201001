@@ -25,7 +25,7 @@
 struct table_phy {
 	unsigned char mac;
 	int port;
-	char *address;
+	char address[20];
 };
 
 //Estrutura que representa a tabela de funcionamento normal do comutador
@@ -94,16 +94,15 @@ void init(void) {
 }
 
 void verifica_conexoes(void) {
-	int i;
 	int resultado = poll(ufds_con, 1, 1000);
 
 	if (resultado > 0) {
 		if (ufds_con[0].revents & POLLIN) {
-			if (recvfrom(socket_conexoes, buffer_conexoes, sizeof(buffer_conexoes), 0, (struct sockaddr *)0, 0) > 0);
+			if (recvfrom(socket_conexoes, buffer_conexoes, sizeof(buffer_conexoes), 0, (struct sockaddr *)0, 0) > 0) {
 		
 			last_port++;
 
-			table_phy[last_port].address = strtok(buffer_conexoes, "|");
+			strcpy(table_phy[last_port].address, strtok(buffer_conexoes, "|"));
 			table_phy[last_port].port = atoi(strtok(NULL, "|"));
 			table_phy[last_port].mac = atoi(strtok(NULL, "|"));
 		
@@ -136,9 +135,6 @@ void verifica_conexoes(void) {
 
 			memset(&buffer_conexoes, 0, sizeof(buffer_conexoes));
 		}
-		printf("tabela fisica:\n");
-		for (i = 0 ; i < NUMBER_OF_PORTS; i++) {
-			printf("%d: %s:%d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
 		}
 	}
 	else if (resultado == -1) {
