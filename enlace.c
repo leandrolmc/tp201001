@@ -215,15 +215,12 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 	}
 }
 
-/* Testa se ha um quadro recebido no nivel de enlace
- * Retorna 1 caso exista e 0 caso contrario
- */
 int L_Data_Indication(){
 		if(!buffer_recv[0].empty){
 			return 1;
 		}
 		else if( (buffer_recv[0].empty) && (!buffer_recv[1].empty) ){
-			strcpy(buffer_recv[0].frame,buffer_recv[1].frame);
+			strcpy(buffer_recv[0].frame,buffer_recv[1].frame);//Para que L_Data_Receive busque sempre de buffer_recv[0]
 			return 1;		
 		}
 	return 0;
@@ -232,7 +229,6 @@ int L_Data_Indication(){
 int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
 
 	return 0;
-
 }
 
 void L_MainLoop(){
@@ -249,18 +245,40 @@ void L_Set_Loss_Probability(float percent_lost_frame){
 void L_Deactivate_Request(void){
 }
 
-/* Recebe um byte e armazena no buffer da camada de enlace,
- * quando o ultimo byte de um quadro e recebido ele deve ser validado
- */
 void l_Recebe_Byte(void) {
+		
+	char ch_recv;
+
 	if(my_mac==0){
 		return;
 	}
 	else{
+		if(P_Data_Indication){
+			ch_recv=P_Data_Receive();
+			if( (buffer_recv[0].empty) && (ch_recv!='$')){
+				buffer_recv[0].frame[buffer_recv[0].position]=ch_recv;
+				buffer_recv[0].position++;
+			}
+			else if( (buffer_recv[0].empty) && ch_recv=='$'){
+				buffer_recv[0].empty=0;			
+				buffer_recv[0].position=0;
+				l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
+			} 
+			else if( (buffer_recv[1].empty) && ch_recv=='$'){
+				buffer_recv[1].empty=0;		
+				buffer_recv[1].position=0;	
+				l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
+			}
+			else{
+				buffer_recv[1].frame[buffer_recv[1].position]=ch_recv;
+				buffer_recv[1].position++;
+			}
+		}
+		else{
+			printf("--Failed Nao tem byte pra receber\n");
+		}
 	}
 	return;	
-	//l_Valida_Quadro();
-	//puts(frame_temp);
 }
 
 void l_Valida_Quadro(void) {
