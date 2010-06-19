@@ -72,6 +72,7 @@ void L_MainLoop(void);
 
 /* Configura a taxa de perda de quadros da camada de enlace
  * Recebe o valor percentual de perda de quadros
+L_Set_Loss_Probability() será chamada próximo da inicialização da camada de enlace (logo depois da Activate, por exemplo). Isso vai salvar o valor passado como parâmetro junto com os outros valores que a camada de enlace usa.
  */
 void L_Set_Loss_Probability(float);
 
