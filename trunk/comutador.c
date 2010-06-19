@@ -6,6 +6,7 @@
  *					 Rafael de Oliveira Costa
  */
 
+#include "enlace.h"
 #include "comutador.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,6 +17,7 @@
 #include <netinet/in.h>
 #include <unistd.h> 
 #include <sys/poll.h>
+#include <time.h>
 
 //Estrutura que representa a tabela de emulacao das conexoes fisicas com o comutador
 struct table_phy {
@@ -26,8 +28,8 @@ struct table_phy {
 
 //Estrutura que representa a tabela de funcionamento normal do comutador
 struct table_switch {
-	int port_switch;
 	char *mac;
+	time_t sec;
 };
 
 int last_port = -1; // portas fisicas (sequencial). -1 = nenhuma usada.
@@ -44,9 +46,13 @@ struct sockaddr_in local_addr_comm[NUMBER_OF_PORTS]; // informacoes de endereco 
 int socket_comunicacao[NUMBER_OF_PORTS]; // socket responsavel pela comunicacao
 struct pollfd ufds_comm[NUMBER_OF_PORTS]; //pollfd para comunicacao
 
-char buffer_recv[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
-char buffer_env[BUFFER_SIZE]; //buffer onde os bytes enviados serão armazenados
+char buffer_conexoes[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
 
+struct buffer_comutador {
+	char buf[FRAME_SIZE];
+	int full;
+	int pos;
+} buffer_recv, buffer_env;
 
 
 void init(void) {
@@ -86,36 +92,39 @@ void verifica_conexoes(void) {
 
 	if (resultado > 0) {
 		if (ufds_con[0].revents & POLLIN) {
-			recvfrom(socket_conexoes, buffer_recv, sizeof(buffer_recv), 0, (struct sockaddr *)0, 0);
-		}
-		last_port++;
-
-		table_phy[last_port].address = strtok(buffer_recv, "|");
-		table_phy[last_port].port = atoi(strtok(NULL, "|"));
-		table_phy[last_port].mac = atoi(strtok(NULL, "|"));
+			if (recvfrom(socket_conexoes, buffer_conexoes, sizeof(buffer_conexoes), 0, (struct sockaddr *)0, 0) > 0);
 		
-		// Criação da conexao de enlace
-		// Criando socket
-		if ((socket_comunicacao[last_port] = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-		   printf("--Erro na criacao do socket\n");
-		   exit(-1);
-		}
-		// Definindo informações do endereco local
-		memset(&local_addr, 0, sizeof(local_addr));
-		local_addr_comm[last_port].sin_family = AF_INET;
-		local_addr_comm[last_port].sin_addr.s_addr = INADDR_ANY;
-		local_addr_comm[last_port].sin_port = htons(table_phy[last_port].port);
+			last_port++;
 
-		// associando a porta a maquina local
-		if (bind(socket_comunicacao[last_port],(struct sockaddr *)&local_addr_comm[last_port], sizeof(struct sockaddr)) < 0) {
-		   printf("--Exit com erro no bind \n");
-		   close(socket_comunicacao[last_port]);
-		   exit(-1);
-		}
-		ufds_comm[last_port].fd = socket_comunicacao[last_port];
-		ufds_comm[last_port].events = POLLIN;
+			table_phy[last_port].address = strtok(buffer_conexoes, "|");
+			table_phy[last_port].port = atoi(strtok(NULL, "|"));
+			table_phy[last_port].mac = atoi(strtok(NULL, "|"));
+		
+			// Criação da conexao de enlace
+			// Criando socket
+			if ((socket_comunicacao[last_port] = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+			   printf("--Erro na criacao do socket\n");
+			   exit(-1);
+			}
+			// Definindo informações do endereco local
+			memset(&local_addr, 0, sizeof(local_addr));
+			local_addr_comm[last_port].sin_family = AF_INET;
+			local_addr_comm[last_port].sin_addr.s_addr = INADDR_ANY;
+			local_addr_comm[last_port].sin_port = htons(table_phy[last_port].port);
 
-		printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
+			// associando a porta a maquina local
+			if (bind(socket_comunicacao[last_port],(struct sockaddr *)&local_addr_comm[last_port], sizeof(struct sockaddr)) < 0) {
+			   printf("--Exit com erro no bind da porta %d\n", table_phy[last_port].port);
+			   close(socket_comunicacao[last_port]);
+			   exit(-1);
+			}
+			ufds_comm[last_port].fd = socket_comunicacao[last_port];
+			ufds_comm[last_port].events = POLLIN;
+
+			printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
+
+			memset(&buffer_conexoes, 0, sizeof(buffer_conexoes));
+		}
 	}
 	else if (resultado == -1) {
 		printf("--erro no poll\n");
@@ -125,21 +134,43 @@ void verifica_conexoes(void) {
 
 void recebe_frame(void) {
 	int i;
-	int resultado = poll(ufds_comm, NUMBER_OF_PORTS, 1000);
+	char temp_buffer[1];
+
+	int resultado = poll(ufds_comm, NUMBER_OF_PORTS, 100);
 
 	if (resultado > 0) {
+		if (buffer_recv.pos == 0 && !buffer_recv.full) {
+			memset(&buffer_recv, 0, sizeof(buffer_recv));
+		}
+
 		for (i = 0; i < NUMBER_OF_PORTS; i++) {
 			if (ufds_comm[i].revents & POLLIN) {
-				recvfrom(ufds_comm[i].fd, buffer_recv, sizeof(buffer_recv), 0, (struct sockaddr *)0, 0);
+				recvfrom(ufds_comm[i].fd, temp_buffer, sizeof(temp_buffer), 0, (struct sockaddr *)0, 0);
+				buffer_recv.buf[buffer_recv.pos] = temp_buffer[0];
+				if (temp_buffer[0] == '$') {
+					buffer_recv.pos = 0;
+					buffer_recv.full = 1;
+				}
+				else {
+					buffer_recv.pos++;
+					printf("-- recebendo bytes do frame\n");
+				}
+			
 			}
 		}
-		printf("Frame recebido: %s\n", buffer_recv);
 	}
 	else if (resultado == -1) {
 		printf("--erro no poll\n");
 		exit(-1);
 	}
 	
+}
+
+void verifica_frame() {
+	if (buffer_recv.full) {
+		printf("Frame recebido: %s\n", buffer_recv.buf);
+		buffer_recv.full = 0;
+	}
 }
 
 int start_switch(){
@@ -156,6 +187,7 @@ envia pacotes
 	while (1) {
 		verifica_conexoes();
 		recebe_frame();
+		verifica_frame();
 	}
 
         return 1;
