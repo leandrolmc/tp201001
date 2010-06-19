@@ -223,17 +223,15 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 }
 
 int L_Data_Indication(){
-		if(!buffer_recv[0].empty){
-			return 1;
-		}
-		else if( (buffer_recv[0].empty) && (!buffer_recv[1].empty) ){
-			strcpy(buffer_recv[0].frame,buffer_recv[1].frame);//Para que L_Data_Receive busque sempre de buffer_recv[0]
-			return 1;		
-		}
+	if(!buffer_recv[1].empty){
+		return 1;
+	}
 	return 0;
 }
 
 int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
+	*mac_source = 24;
+	frame_recv = "wololo!";
 
 	return 0;
 }
@@ -250,6 +248,11 @@ void L_Deactivate_Request(void){
 }
 
 void l_Recebe_Byte(void) {
+
+/*
+	buffer_recv[1] = Buffer para frame recebido e validado. Pode ser sobrescrito por outro frame recebido e validado
+	buffer_recv[0] = Buffer para o recebimento dos bytes.
+*/
 		
 	char ch_recv;
 
@@ -264,24 +267,10 @@ void l_Recebe_Byte(void) {
 				buffer_recv[0].position++;
 				printf("-- Byte \'%c\'recebido com sucesso\n", ch_recv);
 				if (ch_recv == '$') {
-					buffer_recv[0].empty=0;			
-					buffer_recv[0].position=0;
+					buffer_recv[0].empty=0;
 					l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
 					printf("-- Frame completamente recebido.\n");
-					printf("-- Frame recebido na camada de enlace: %s", buffer_recv[0].frame);
-				}
-				
-			}
-			else if(buffer_recv[1].empty){
-				buffer_recv[1].frame[buffer_recv[1].position]=ch_recv;
-				buffer_recv[1].position++;
-				printf("-- Byte \'%c\'recebido com sucesso\n", ch_recv);
-				if (ch_recv == '$') {
-					buffer_recv[1].empty=0;			
-					buffer_recv[1].position=0;
-					l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
-					printf("-- Frame completamente recebido.\n");
-					printf("-- Frame recebido na camada de enlace: %s\n", buffer_recv[1].frame);
+					printf("-- Frame recebido na camada de enlace: %s\n", buffer_recv[0].frame);
 				}
 				
 			}
@@ -290,6 +279,14 @@ void l_Recebe_Byte(void) {
 }
 
 void l_Valida_Quadro(void) {
+	// Implementar validação!
+	// soh vai para o buffer 1 se for valido!
+	strcpy(buffer_recv[1].frame, buffer_recv[0].frame);
+	buffer_recv[1].empty = 0;
+
+	memset(&buffer_recv[0].frame, 0, sizeof(buffer_recv[0].frame));
+	buffer_recv[0].empty = 1;
+	buffer_recv[0].position=0;
 }
 
 void l_Transmite_Byte(void) {
