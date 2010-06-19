@@ -262,7 +262,6 @@ void envia_frame() {
 					buffer_env.pos = 0;
 					buffer_env.full = 0;
 				}
-				close(socket_comunicacao[i]);
 			}
 		}
 	}
