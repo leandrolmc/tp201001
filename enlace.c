@@ -107,6 +107,8 @@ int generate_code_error(char *buffer)
 
 void plug_host(int switch_port, char *host_addr) {
 
+	char ipreal[15];
+
 	int phy_sd; // descritor do socket
 
 	struct sockaddr_in local_addr; // informacoes de endereco local
@@ -120,11 +122,15 @@ void plug_host(int switch_port, char *host_addr) {
            exit(-1);
         }
 
+	printf("Qual o IP real da sua maquina?\n");
+	gets(ipreal);
+
 	// Definindo informações do endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
 	local_addr.sin_family = AF_INET;
-	local_addr.sin_addr.s_addr = INADDR_ANY;
+	local_addr.sin_addr.s_addr = inet_addr(ipreal);
 	local_addr.sin_port = htons(SWITCH_PORT);
+	memset(local_addr.sin_zero, 0, sizeof(local_addr.sin_zero));
 
 	// associando a porta a maquina local
         if (bind(phy_sd,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
@@ -142,7 +148,8 @@ void plug_host(int switch_port, char *host_addr) {
 	}
 
 	//frame especial
-	sprintf(buffer_send, "%s|%d|%d", "192.168.1.100", switch_port, my_mac);
+	sprintf(buffer_send, "%s|%d|%d", inet_ntoa(local_addr.sin_addr), switch_port, my_mac);
+	printf("%s", buffer_send);
 
 	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
