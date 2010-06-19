@@ -92,6 +92,7 @@ void menu(char option){
 			//getchar();
 			message_to_send  = (char*) malloc (PAYLOAD_SIZE * sizeof(char));
 			printf("Digite a mensagem a ser enviada\n");
+			getchar();
 			fgets(message_to_send, PAYLOAD_SIZE, stdin);
 			message_to_send[strlen(message_to_send)-1] = '\0';
 
