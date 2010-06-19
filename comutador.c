@@ -162,15 +162,15 @@ void recebe_frame(void) {
 			if (ufds_comm[i].revents & POLLIN) {
 				recvfrom(ufds_comm[i].fd, temp_buffer, sizeof(temp_buffer), 0, (struct sockaddr *)0, 0);
 				buffer_recv.buf[buffer_recv.pos] = temp_buffer[0];
+				porta_origem = i;
 				if (temp_buffer[0] == '$') {
 					buffer_recv.pos = 0;
 					buffer_recv.full = 1;
-
-					porta_origem = i;
+					printf("-- Recebendo byte %c da interface %d\n", temp_buffer[0], porta_origem);
 				}
 				else {
 					buffer_recv.pos++;
-					printf("-- recebendo bytes do frame\n");
+					printf("-- Recebendo byte %c da interface %d\n", temp_buffer[0], porta_origem);
 				}
 			
 			}
@@ -239,10 +239,10 @@ void envia_frame() {
 	char temp_buffer[1];
 	
 	if (buffer_env.full) {
-	temp_buffer[0] = buffer_env.buf[buffer_env.pos];
-
+	
 	for (i = 0; i < NUMBER_OF_PORTS; i++) {
-		if ((porta_destino == i) || (porta_destino == TODAS_PORTAS && porta_origem != i)) {
+		if ((porta_destino == i) || (porta_destino == TODAS_PORTAS && porta_origem != i && table_switch[i].mac != 0)) {
+			temp_buffer[0] = buffer_env.buf[buffer_env.pos];
 
 			memset(&remote_addr, 0, sizeof(remote_addr));
 
@@ -250,20 +250,22 @@ void envia_frame() {
 			remote_addr.sin_family = AF_INET;
 			remote_addr.sin_addr.s_addr = inet_addr(table_phy[i].address);
 			remote_addr.sin_port = htons(table_phy[i].port);
+			
+			
 
 			if ((sendto(socket_comunicacao[i], temp_buffer, sizeof(temp_buffer), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 				printf("--Erro na transmissão\n");
 				close(socket_comunicacao[i]);
 			}
 			else {
-				printf("-- Dados transmitidos com sucesso.\n");
-				buffer_env.pos++;
-				if (temp_buffer[0] == '$') {
-					buffer_env.pos = 0;
-					buffer_env.full = 0;
-				}
+				printf("-- Enviando byte %c pela interface %d\n", temp_buffer[0], i);
 			}
 		}
+	}
+	buffer_env.pos++;
+	if (temp_buffer[0] == '$') {
+		buffer_env.pos = 0;
+		buffer_env.full = 0;
 	}
 
 	}
