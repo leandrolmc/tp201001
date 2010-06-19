@@ -30,6 +30,8 @@
 
 #define FRAME_SIZE 142
 
+#define BROADCAST 255
+
 
 /* Efetua as inicializacoes do nivel de enlace (recebe o endereco local da maquina) e inicializa o nivel  
  * fisico (recebe a especificacao da porta que sera usada para a comunicacao e o endereco IP do comutador de enlace)
