@@ -66,7 +66,14 @@ void menu(char option){
 			printf("--Sucess L_Activate_Request\n");
 			printf("Selecione uma Função\n");
 			break;
-  		
+
+		case 'i':
+			getchar();
+			if(!L_Data_Indication()){
+				printf("nao ");
+			}        
+				printf("existe um quadro recebido na camada de enlace\n");
+
 		case 'd':
 			getchar();        
 			printf("Digite o MAC destino\n");
@@ -111,6 +118,7 @@ int getch()
 int main(){
 	while(1){
 		printf("'a': L_Activate_Request\n");
+		printf("'i': L_Data_Indication\n");
 		printf("'d': L_Data_Request\n");
 		printf("'s': Sair\n");
 
