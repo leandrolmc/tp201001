@@ -93,3 +93,6 @@ void l_Valida_Quadro(void);
 // Transmite um byte do quadro e checa se terminou a transmissao do quadro
 void l_Transmite_Byte(void);
 
+/* ** funcao auxiliar ** */
+void definirIPreal(char *);
+

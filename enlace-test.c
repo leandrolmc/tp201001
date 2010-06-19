@@ -42,7 +42,8 @@ void menu(char option){
 			buffer  = (char*) malloc (15);
 			do{
 				printf("Digite o IP do comutador\n");
-				gets(switch_addr);
+				fgets(switch_addr, 15, stdin);
+				switch_addr[strlen(switch_addr)-1] = '\0';
 				strcpy (buffer,switch_addr);
 				temp = strtok (buffer,".");
 				while (temp != NULL)
@@ -81,9 +82,10 @@ void menu(char option){
 			mac=(unsigned char)mac_temp;
 
 			getchar();
-			message_to_send  = (char*) malloc (PAYLOAD_SIZE);
+			message_to_send  = (char*) malloc (PAYLOAD_SIZE * sizeof(char));
 			printf("Digite a mensagem a ser enviada\n");
-			gets(message_to_send);
+			fgets(message_to_send, PAYLOAD_SIZE, stdin);
+			message_to_send[strlen(message_to_send)-1] = '\0';
 
 			L_Data_Request(mac,message_to_send,strlen(message_to_send));
 
@@ -108,6 +110,7 @@ int getch()
 {
     int r;
     unsigned char c;
+
     if ((r = read(0, &c, sizeof(c))) < 0) {
         return r;
     } else {
@@ -116,6 +119,13 @@ int getch()
 }
 
 int main(){
+	char ipreal[15];
+	printf("Qual o IP real desta maquina?\n");
+	fgets(ipreal, 15, stdin);
+	ipreal[strlen(ipreal)-1] = '\0';
+
+	definirIPreal(ipreal);
+
 	while(1){
 		printf("'a': L_Activate_Request\n");
 		printf("'i': L_Data_Indication\n");

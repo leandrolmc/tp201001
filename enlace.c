@@ -21,6 +21,8 @@
 #include <netinet/in.h>
 #include <unistd.h> 
 
+char ipreal[15];
+
 
 unsigned char my_mac=0;
 
@@ -107,7 +109,7 @@ int generate_code_error(char *buffer)
 
 void plug_host(int switch_port, char *host_addr) {
 
-	char ipreal[15];
+
 
 	int phy_sd; // descritor do socket
 
@@ -121,9 +123,6 @@ void plug_host(int switch_port, char *host_addr) {
            printf("--Erro na criacao do socket\n");
            exit(-1);
         }
-
-	printf("Qual o IP real da sua maquina?\n");
-	gets(ipreal);
 
 	// Definindo informações do endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
@@ -149,7 +148,6 @@ void plug_host(int switch_port, char *host_addr) {
 
 	//frame especial
 	sprintf(buffer_send, "%s|%d|%d", inet_ntoa(local_addr.sin_addr), switch_port, my_mac);
-	printf("%s", buffer_send);
 
 	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
@@ -260,25 +258,29 @@ void l_Recebe_Byte(void) {
 		return;
 	}
 	else{
-		if(P_Data_Indication){
+		if(P_Data_Indication()){
 			ch_recv=P_Data_Receive();
 			if( (buffer_recv[0].empty) && (ch_recv!='$')){
 				buffer_recv[0].frame[buffer_recv[0].position]=ch_recv;
 				buffer_recv[0].position++;
+				printf("-- recebendo byte\n");
 			}
 			else if( (buffer_recv[0].empty) && ch_recv=='$'){
 				buffer_recv[0].empty=0;			
 				buffer_recv[0].position=0;
 				l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
+				printf("-- frame completamente recebido\n");
 			} 
 			else if( (buffer_recv[1].empty) && ch_recv=='$'){
 				buffer_recv[1].empty=0;		
 				buffer_recv[1].position=0;	
 				l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
+				printf("-- frame completamente recebido\n");
 			}
 			else{
 				buffer_recv[1].frame[buffer_recv[1].position]=ch_recv;
 				buffer_recv[1].position++;
+				printf("-- recebendo byte\n");
 			}
 		}
 		else{
@@ -318,4 +320,10 @@ void l_Transmite_Byte(void) {
 		}
 	}
 	return;		
+}
+
+/* ** funcao auxiliar ** */
+void definirIPreal(char * ip) {
+	strcpy(ipreal, ip);
+
 }
