@@ -265,7 +265,7 @@ void l_Recebe_Byte(void) {
 			if( (buffer_recv[0].empty) && (ch_recv!='$')){
 				buffer_recv[0].frame[buffer_recv[0].position]=ch_recv;
 				buffer_recv[0].position++;
-				printf("-- recebendo byte %c\n", ch_recv);
+				printf("-- recebendo byte %c. Guarda no buffer 0 posicao %d\n", ch_recv, buffer_recv[0].position-1);
 			}
 			else if( (buffer_recv[0].empty) && ch_recv=='$'){
 				buffer_recv[0].empty=0;			
@@ -282,11 +282,10 @@ void l_Recebe_Byte(void) {
 			else{
 				buffer_recv[1].frame[buffer_recv[1].position]=ch_recv;
 				buffer_recv[1].position++;
-				printf("-- recebendo byte %c\n", ch_recv);
+				printf("-- recebendo byte %c. Guarda no buffer 1 posicao %d\n", ch_recv, buffer_recv[1].position-1);
 			}
 		}
 	}
-	return;	
 }
 
 void l_Valida_Quadro(void) {
