@@ -18,6 +18,8 @@
 #include <unistd.h> 
 #include <sys/poll.h>
 #include <time.h>
+#include <string.h>
+#include <arpa/inet.h>
 
 //Estrutura que representa a tabela de emulacao das conexoes fisicas com o comutador
 struct table_phy {
@@ -28,7 +30,7 @@ struct table_phy {
 
 //Estrutura que representa a tabela de funcionamento normal do comutador
 struct table_switch {
-	char *mac;
+	unsigned char mac;
 	time_t sec;
 };
 
@@ -37,6 +39,10 @@ int last_port = -1; // portas fisicas (sequencial). -1 = nenhuma usada.
 //Declarando as tabelas como variaveis globais
 struct table_phy table_phy[NUMBER_OF_PORTS];
 struct table_switch table_switch[NUMBER_OF_PORTS];
+
+int porta_origem;
+int porta_destino;
+#define TODAS_PORTAS -1
 
 struct sockaddr_in local_addr; // informacoes de endereco local
 int socket_conexoes; // socket responsavel por aguardar as conexoes fisicas
@@ -123,6 +129,10 @@ void verifica_conexoes(void) {
 
 			printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
 
+			// preenchendo tabela de comutacao
+			table_switch[last_port].mac = table_phy[last_port].mac;
+			table_switch[last_port].sec = time(NULL);
+
 			memset(&buffer_conexoes, 0, sizeof(buffer_conexoes));
 		}
 	}
@@ -134,6 +144,11 @@ void verifica_conexoes(void) {
 
 void recebe_frame(void) {
 	int i;
+
+	char frame[FRAME_SIZE];
+	unsigned char mac_origem;
+	unsigned char mac_destino;
+
 	char temp_buffer[1];
 
 	int resultado = poll(ufds_comm, NUMBER_OF_PORTS, 100);
@@ -150,6 +165,8 @@ void recebe_frame(void) {
 				if (temp_buffer[0] == '$') {
 					buffer_recv.pos = 0;
 					buffer_recv.full = 1;
+
+					porta_origem = i;
 				}
 				else {
 					buffer_recv.pos++;
@@ -167,9 +184,82 @@ void recebe_frame(void) {
 }
 
 void verifica_frame() {
-	if (buffer_recv.full) {
+	int i;
+
+	char frame[FRAME_SIZE];
+	unsigned char mac_origem;
+	unsigned char mac_destino;
+	
+
+	if (buffer_recv.full && !buffer_env.full) {
 		printf("Frame recebido: %s\n", buffer_recv.buf);
+		strcpy(frame, buffer_recv.buf);
+
+		mac_origem = atoi(strtok(frame, "|"));
+		mac_destino = atoi(strtok(NULL, "|"));
+
+		if (mac_origem == mac_destino) { // descarta pacote
+			memset(&buffer_recv.buf, 0, sizeof(buffer_recv.buf));
+			buffer_recv.full = 0;
+			buffer_env.full = 0;
+			printf("mac destino = mac origem. pacote descartado.\n");
+
+		}
+		else {
+			for (i = 0; i < NUMBER_OF_PORTS; i++) {
+				if (table_switch[i].mac == mac_destino) {
+					porta_destino = i; // encontrou a interface
+					strcpy(buffer_env.buf, buffer_recv.buf);
+					buffer_env.full = 1;
+					printf("mac destino %d na porta %d\n", table_switch[i].mac, porta_destino);
+					break;
+				}
+			}
+
+
+			if (i == NUMBER_OF_PORTS) { // Não encontrou.. broadcast!
+				porta_destino = TODAS_PORTAS;
+				strcpy(buffer_env.buf, buffer_recv.buf);
+				buffer_env.full = 1;
+				printf("Broadcast!\n");
+		
+			}
+		}
+
+
+		memset(&buffer_recv.buf, 0, sizeof(buffer_recv.buf));
 		buffer_recv.full = 0;
+	}
+}
+
+void envia_frame() {
+	int i;
+	struct sockaddr_in remote_addr;
+	
+	if (buffer_env.full) {
+
+	for (i = 0; i < NUMBER_OF_PORTS; i++) {
+		if ((porta_destino == i) || (porta_destino == TODAS_PORTAS && porta_origem != i)) {
+
+			memset(&remote_addr, 0, sizeof(remote_addr));
+
+			// Definindo informações do endereco remoto
+			remote_addr.sin_family = AF_INET;
+			remote_addr.sin_addr.s_addr = inet_addr(table_phy[i].address);
+			remote_addr.sin_port = htons(table_phy[i].port);
+
+			if ((sendto(socket_comunicacao[i], buffer_env.buf, strlen(buffer_env.buf), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
+				printf("--Erro na transmissão\n");
+				close(socket_comunicacao[i]);
+			}
+			else {
+				printf("-- Dados transmitidos com sucesso.\n");
+				buffer_env.full = 0;
+			   close(socket_comunicacao[i]);
+			}
+		}
+	}
+
 	}
 }
 
@@ -188,6 +278,7 @@ envia pacotes
 		verifica_conexoes();
 		recebe_frame();
 		verifica_frame();
+		envia_frame();
 	}
 
         return 1;
