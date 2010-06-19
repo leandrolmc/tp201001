@@ -167,14 +167,17 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	P_Activate_Request(switch_port, host_addr);
 
 	//Inicializando os buffers de envio e recebimento
-	buffer_env[0].frame = (char*) malloc(FRAME_SIZE);
-	memset(&buffer_env[0], 0, FRAME_SIZE);
-	buffer_env[1].frame = (char*) malloc(FRAME_SIZE);
-	memset(&buffer_env[1], 0, FRAME_SIZE);
-	buffer_recv[0].frame = (char*) malloc(FRAME_SIZE);
-	memset(&buffer_recv[0], 0, FRAME_SIZE);
-	buffer_recv[1].frame = (char*) malloc(FRAME_SIZE);
-	memset(&buffer_recv[1], 0, FRAME_SIZE);
+	buffer_env[0].frame = (char *)malloc(FRAME_SIZE * sizeof(char));
+	memset(&buffer_env[0].frame, 0, FRAME_SIZE);
+
+	buffer_env[1].frame = (char *)malloc(FRAME_SIZE * sizeof(char));
+	memset(&buffer_env[1].frame, 0, FRAME_SIZE);
+
+	buffer_recv[0].frame = (char *)malloc(FRAME_SIZE * sizeof(char));
+	memset(&buffer_recv[0].frame, 0, FRAME_SIZE);
+
+	buffer_recv[1].frame = (char *)malloc(FRAME_SIZE * sizeof(char));
+	memset(&buffer_recv[1].frame, 0, FRAME_SIZE);
 
 	buffer_env[0].empty=1;
 	buffer_env[1].empty=1;
@@ -192,24 +195,24 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
 void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 
-	char buffer[FRAME_SIZE];
+	//char buffer[FRAME_SIZE];
 
-	//char *buffer;
-	//buffer = (char*) malloc(FRAME_SIZE);
-	//memset(&buffer, 0, FRAME_SIZE);
+	char *buffer;
+	buffer = (char*) malloc(FRAME_SIZE);
+	memset(&buffer, 0, FRAME_SIZE);
 
 	sprintf(buffer, "%d|%d|%s|%d", (int)my_mac,(int)mac_dest, payload,strlen(payload));
 	sprintf(buffer, "%s|%d", buffer,generate_code_error(buffer));
 
 	if(buffer_env[0].empty==1){
-		buffer_env[0].frame=buffer;
-		//strcpy (buffer_env[0].frame,buffer);
+		//buffer_env[0].frame=buffer;
+		strcpy (buffer_env[0].frame,buffer);
 		buffer_env[0].empty=0;
 		buffer_env[0].position=0;
 	}
 	else{
-		buffer_env[1].frame=buffer;
-		//strcpy (buffer_env[1].frame,buffer);
+		//buffer_env[1].frame=buffer;
+		strcpy (buffer_env[1].frame,buffer);
 		buffer_env[1].empty=0;
 		buffer_env[0].position=0;
 	}
