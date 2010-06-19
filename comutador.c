@@ -105,6 +105,7 @@ void verifica_conexoes(void) {
 			strcpy(table_phy[last_port].address, strtok(buffer_conexoes, "|"));
 			table_phy[last_port].port = atoi(strtok(NULL, "|"));
 			table_phy[last_port].mac = atoi(strtok(NULL, "|"));
+			
 		
 			// Criação da conexao de enlace
 			// Criando socket
