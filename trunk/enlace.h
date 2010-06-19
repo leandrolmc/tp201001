@@ -21,7 +21,7 @@
  *    dados, 
  *    codigo de erro (escolher metodo para deteccao de erro).
  * 
- * FRAME:          MACORIGEM|MACDESTINO|DADOS|TAMANHODOSDADOS|CODIGOERRO
+ * FRAME:          MACORIGEM|MACDESTINO|DADOS|TAMANHODOSDADOS|CODIGOERRO$
  *
  * FRAME ESPECIAL: ENDERECOHOST|PORTA|MACORIGEM
  */
