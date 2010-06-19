@@ -17,6 +17,15 @@
 
 int indicacao_frame;
 
+void exibir_menu() {
+	printf("Selecione uma Função\n");
+	printf("'a': L_Activate_Request\n");
+	printf("'i': L_Data_Indication\n");
+	printf("'d': L_Data_Request\n");
+	printf("'r': L_Data_Receive\n");
+	printf("'s': Sair\n");
+}
+
 void menu(char option){
 
 	unsigned char mac;
@@ -34,22 +43,24 @@ void menu(char option){
 
 	switch(option){
   		case 'a':      
-			getchar();        
-			printf("Digite o MAC do host\n");
-			scanf("%d",&mac_temp);
+			do {
+				printf("Digite o MAC do host\n");
+				scanf("%d",&mac_temp);
+				if (mac_temp < 1 || mac_temp > 255)
+					printf("MAC inválido. Escolha um entre 0 e 255\n");
+			} while (mac_temp < 1 || mac_temp > 255);
 			mac=(unsigned char)mac_temp;
 
 			printf("Digite a porta do comutador\n");
 			scanf("%d",&switch_port);
-
+			getchar(); // a proxima entrada eh por fgets
 			
-			switch_addr  = (char*) malloc (15);
-			buffer  = (char*) malloc (15);
+			switch_addr  = (char*) malloc (15 * sizeof(char));
+			buffer  = (char*) malloc (15 * sizeof(char));
 			do{
 				printf("Digite o IP do comutador\n");
-				getchar();
 				fgets(switch_addr, 15, stdin);
-				switch_addr[strlen(switch_addr)-1] = '\0';
+				switch_addr[strlen(switch_addr)-1] = '\0'; //remover o \n consumido
 				strcpy (buffer,switch_addr);
 				temp = strtok (buffer,".");
 				while (temp != NULL)
@@ -71,34 +82,37 @@ void menu(char option){
 			}
 
 			printf("--Sucess L_Activate_Request\n");
-			printf("Selecione uma Função\n");
+			exibir_menu();
 			break;
 
 		case 'i':
-			getchar();
 			indicacao_frame = L_Data_Indication();
 			if(!indicacao_frame){
 				printf("nao ");
 			}        
 			printf("existe um quadro recebido na camada de enlace\n");
+			exibir_menu();
+			break;
 
 		case 'd':
-			getchar();        
-			printf("Digite o MAC destino\n");
-			scanf("%d",&mac_temp);
+			do {
+				printf("Digite o MAC destino\n");
+				scanf("%d",&mac_temp);
+				if (mac_temp < 1 || mac_temp > 255)
+					printf("MAC inválido. Escolha um entre 0 e 255\n");
+			} while (mac_temp < 1 || mac_temp > 255);
 			mac=(unsigned char)mac_temp;
+			getchar(); // a proxima entrada eh por fgets
 
-			getchar();
 			message_to_send  = (char*) malloc (PAYLOAD_SIZE * sizeof(char));
 			printf("Digite a mensagem a ser enviada\n");
-			getchar();
 			fgets(message_to_send, PAYLOAD_SIZE, stdin);
 			message_to_send[strlen(message_to_send)-1] = '\0';
 
 			L_Data_Request(mac,message_to_send,strlen(message_to_send));
 
 			printf("--Sucess L_Data_Request\n");	
-			printf("Selecione uma Função\n");
+			exibir_menu();
 			break;
 		case 'r':
 			if (indicacao_frame) {
@@ -109,11 +123,13 @@ void menu(char option){
 			else {
 				printf("Verifique antes de tentar receber!\n");
 			}
+			exibir_menu();
 			break;
 
 		case 's':            
 			exit(1);
 	}
+	
 }
 
 int kbhit()
@@ -144,13 +160,8 @@ int main(){
 
 	definirIPreal(ipreal);
 
+	exibir_menu();
 	while(1){
-		printf("'a': L_Activate_Request\n");
-		printf("'i': L_Data_Indication\n");
-		printf("'d': L_Data_Request\n");
-		printf("'r': L_Data_Receive\n");
-		printf("'s': Sair\n");
-
 		while (!kbhit()) {
 			L_MainLoop();
 		}
