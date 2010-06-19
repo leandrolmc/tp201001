@@ -98,7 +98,7 @@ void menu(char option){
 
 int kbhit()
 {
-    struct timeval tv = { 1L, 0L };
+    struct timeval tv = { 0L, 0L };
     fd_set fds;
     FD_SET(0, &fds);
     return select(1, &fds, NULL, NULL, &tv);
