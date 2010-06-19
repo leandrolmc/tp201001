@@ -94,6 +94,7 @@ void init(void) {
 }
 
 void verifica_conexoes(void) {
+	int i;
 	int resultado = poll(ufds_con, 1, 1000);
 
 	if (resultado > 0) {
@@ -135,19 +136,21 @@ void verifica_conexoes(void) {
 
 			memset(&buffer_conexoes, 0, sizeof(buffer_conexoes));
 		}
+		printf("tabela fisica:\n");
+		for (i = 0 ; i < NUMBER_OF_PORTS; i++) {
+			printf("%d: %s:%d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
+		}
 	}
 	else if (resultado == -1) {
 		printf("--erro no poll\n");
 		exit(-1);
 	}
+
+
 }
 
 void recebe_frame(void) {
 	int i;
-
-	char frame[FRAME_SIZE];
-	unsigned char mac_origem;
-	unsigned char mac_destino;
 
 	char temp_buffer[1];
 
