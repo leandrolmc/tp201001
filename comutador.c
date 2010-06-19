@@ -128,7 +128,7 @@ void verifica_conexoes(void) {
 			ufds_comm[last_port].fd = socket_comunicacao[last_port];
 			ufds_comm[last_port].events = POLLIN;
 
-			printf("Conexão estabelecida. Mac: %d | IP: %s | Porta: %d\n", table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
+			printf("Conexão estabelecida na interface %d. Mac: %d | IP: %s | Porta: %d\n", last_port, table_phy[last_port].mac, table_phy[last_port].address, table_phy[last_port].port);
 
 			// preenchendo tabela de comutacao
 			table_switch[last_port].mac = table_phy[last_port].mac;
@@ -166,11 +166,11 @@ void recebe_frame(void) {
 				if (temp_buffer[0] == '$') {
 					buffer_recv.pos = 0;
 					buffer_recv.full = 1;
-					printf("-- Recebendo byte %c da interface %d\n", temp_buffer[0], porta_origem);
+					printf("-- Recebendo byte \'%c\' da interface %d\n", temp_buffer[0], porta_origem);
 				}
 				else {
 					buffer_recv.pos++;
-					printf("-- Recebendo byte %c da interface %d\n", temp_buffer[0], porta_origem);
+					printf("-- Recebendo byte \'%c\' da interface %d\n", temp_buffer[0], porta_origem);
 				}
 			
 			}
@@ -258,7 +258,7 @@ void envia_frame() {
 				close(socket_comunicacao[i]);
 			}
 			else {
-				printf("-- Enviando byte %c pela interface %d\n", temp_buffer[0], i);
+				printf("-- Enviando byte \'%c\' pela interface %d\n", temp_buffer[0], i);
 			}
 		}
 	}
