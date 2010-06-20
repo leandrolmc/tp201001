@@ -253,6 +253,7 @@ void L_Set_Loss_Probability(float percent_lost_frame){
 }
 
 void L_Deactivate_Request(void){
+	P_Deactivate_Request();
 }
 
 void l_Recebe_Byte(void) {
