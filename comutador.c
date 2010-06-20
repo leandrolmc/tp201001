@@ -272,14 +272,6 @@ void envia_frame() {
 }
 
 int start_switch(){
-/*
-Loop:
-verifica conexoes
-recebe pacotes
-comuta pacotes
-envia pacotes
-
-*/
 	init();
 
 	while (1) {
@@ -289,5 +281,5 @@ envia pacotes
 		envia_frame();
 	}
 
-        return 1;
+   return 1;
 }
