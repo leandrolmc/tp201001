@@ -38,7 +38,7 @@ void menu(char option){
 	int not_leave=0;
 
 	unsigned char mac_source;
-	char *frame_recv;
+	char frame_recv[200];
 	int max_frame;
 
 	switch(option){
@@ -116,9 +116,17 @@ void menu(char option){
 			break;
 		case 'r':
 			if (indicacao_frame) {
-				// ainda falta!!!
-				L_Data_Receive(&mac_source, frame_recv, max_frame);
-				printf("A mensagem recebida do mac %d foi: %s", mac_source, frame_recv);
+				printf("Qual o tamanho maximo dos dados do frame?\n");
+				scanf("%d", &max_frame);
+
+				memset(&frame_recv, 0, sizeof(frame_recv));
+				printf("recuperando..\n");
+				if (L_Data_Receive(&mac_source, frame_recv, max_frame) >= 0) {
+				printf("A mensagem recebida do mac %d foi: %s\n", mac_source, frame_recv); 
+				}
+				else {
+					printf("A mensagem recebida é maior que o tamanho maximo de dados do frame\n"); 
+				}
 			}
 			else {
 				printf("Verifique antes de tentar receber!\n");
