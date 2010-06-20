@@ -34,14 +34,14 @@ struct buffer_env{
 	int position;
 };
 
-struct buffer_recv{
+struct buffer_receb{
 	char frame[FRAME_SIZE];
 	int empty;
 	int position;
 };
 
 struct buffer_env buffer_env[2];
-struct buffer_recv buffer_recv[2];
+struct buffer_receb buffer_receb[2];
 
 float taxa_perda_quadros;
 
@@ -175,18 +175,18 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	//Inicializando os buffers de envio e recebimento
 	memset(&buffer_env[0].frame, 0, FRAME_SIZE);
 	memset(&buffer_env[1].frame, 0, FRAME_SIZE);
-	memset(&buffer_recv[0].frame, 0, FRAME_SIZE);
-	memset(&buffer_recv[1].frame, 0, FRAME_SIZE);
+	memset(&buffer_receb[0].frame, 0, FRAME_SIZE);
+	memset(&buffer_receb[1].frame, 0, FRAME_SIZE);
 
 	buffer_env[0].empty=1;
 	buffer_env[1].empty=1;
-	buffer_recv[0].empty=1;
-	buffer_recv[1].empty=1;
+	buffer_receb[0].empty=1;
+	buffer_receb[1].empty=1;
 
 	buffer_env[0].position=0;
 	buffer_env[1].position=0;
-	buffer_recv[0].position=0;
-	buffer_recv[1].position=0;
+	buffer_receb[0].position=0;
+	buffer_receb[1].position=0;
 
 	//Inicializa o valor da variavel taxa_perda_quadros
 	srand ( time(NULL) );
@@ -221,7 +221,7 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 }
 
 int L_Data_Indication(){
-	if(!buffer_recv[1].empty){
+	if(!buffer_receb[1].empty){
 		return 1;
 	}
 	return 0;
@@ -250,8 +250,8 @@ void L_Deactivate_Request(void){
 void l_Recebe_Byte(void) {
 
 /*
-	buffer_recv[1] = Buffer para frame recebido e validado. Pode ser sobrescrito por outro frame recebido e validado
-	buffer_recv[0] = Buffer para o recebimento dos bytes.
+	buffer_receb[1] = Buffer para frame recebido e validado. Pode ser sobrescrito por outro frame recebido e validado
+	buffer_receb[0] = Buffer para o recebimento dos bytes.
 */
 		
 	char ch_recv;
@@ -262,16 +262,16 @@ void l_Recebe_Byte(void) {
 	else{
 		if(P_Data_Indication()){
 			ch_recv=P_Data_Receive();
-			if(buffer_recv[0].empty){
-				buffer_recv[0].frame[buffer_recv[0].position]=ch_recv;
-				printf("-- Byte \'%c\'recebido com sucesso\n", buffer_recv[0].frame[buffer_recv[0].position]);
-				buffer_recv[0].position++;		
+			if(buffer_receb[0].empty){
+				buffer_receb[0].frame[buffer_receb[0].position]=ch_recv;
+				printf("-- Byte \'%c\'recebido com sucesso\n", buffer_receb[0].frame[buffer_receb[0].position]);
+				buffer_receb[0].position++;		
 				if (ch_recv == '$') {
-					buffer_recv[0].empty=0;
-					l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
+					buffer_receb[0].empty=0;
 					printf("-- Frame completamente recebido.\n");
 					printf("-- Frame recebido na camada de enlace: ");
-					puts(buffer_recv[0].frame);
+					puts(buffer_receb[0].frame);
+					l_Valida_Quadro();//obs se nao for valido fazer buffer_receb[0].empty=1;
 				}
 				
 			}
@@ -288,7 +288,7 @@ void l_Valida_Quadro(void) {
 	int mac_dest;
 	int codigo_erro;
 
-	pch = strtok(buffer_recv[0].frame, "|");
+	pch = strtok(buffer_receb[0].frame, "|");
 	sprintf(frame_temp, "%d|", (int)pch);
 	
 	mac_dest = atoi(strtok(NULL, "|"));
@@ -313,12 +313,12 @@ void l_Valida_Quadro(void) {
 	}
 
 	//nao mando o codigo de erro aqui
-	strcpy(buffer_recv[1].frame, frame_temp);
-	buffer_recv[1].empty = 0;
+	strcpy(buffer_receb[1].frame, frame_temp);
+	buffer_receb[1].empty = 0;
 
-	memset(&buffer_recv[0].frame, 0, sizeof(buffer_recv[0].frame));
-	buffer_recv[0].empty = 1;
-	buffer_recv[0].position=0;
+	memset(&buffer_receb[0].frame, 0, sizeof(buffer_receb[0].frame));
+	buffer_receb[0].empty = 1;
+	buffer_receb[0].position=0;
 }
 
 void l_Transmite_Byte(void) {
