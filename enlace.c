@@ -104,8 +104,6 @@ int generate_code_error(char *buffer)
 
 void plug_host(int switch_port, char *host_addr) {
 
-
-
 	int phy_sd; // descritor do socket
 
 	struct sockaddr_in local_addr; // informacoes de endereco local
