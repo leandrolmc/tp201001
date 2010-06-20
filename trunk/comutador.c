@@ -94,7 +94,7 @@ void init(void) {
 }
 
 void verifica_conexoes(void) {
-	int resultado = poll(ufds_con, 1, 1000);
+	int resultado = poll(ufds_con, 1, 500);
 
 	if (resultado > 0) {
 		if (ufds_con[0].revents & POLLIN) {
@@ -151,7 +151,7 @@ void recebe_frame(void) {
 
 	char temp_buffer[1];
 
-	int resultado = poll(ufds_comm, NUMBER_OF_PORTS, 100);
+	int resultado = poll(ufds_comm, NUMBER_OF_PORTS, 500);
 
 	if (resultado > 0) {
 		if (buffer_recv.pos == 0 && !buffer_recv.full) {
