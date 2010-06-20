@@ -315,7 +315,7 @@ void l_Valida_Quadro(void) {
 	//checagem de erro (usar probabilidade randomica de erro para “forcar” a ocorrencia de erros)
 	srand ( time(NULL) );
 	prob_quadro=(rand() % 100);
-	if( (prob_quadro/100) < taxa_perda_quadros){
+	if( (prob_quadro/100.0) < taxa_perda_quadros){
 		printf("-- Nao eh valido, o quadro foi perdido\n");
 		return;
 	}
@@ -332,6 +332,7 @@ void l_Valida_Quadro(void) {
 	memset(&buffer_receb[0].frame, 0, sizeof(buffer_receb[0].frame));
 	buffer_receb[0].empty = 1;
 	buffer_receb[0].position=0;
+	printf("-- Quadro válido!! Pronto para rececuperação.\n");
 
 	return;
 }
