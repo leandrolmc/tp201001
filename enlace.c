@@ -189,8 +189,8 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	buffer_receb[1].position=0;
 
 	//Inicializa o valor da variavel taxa_perda_quadros
-	srand ( time(NULL) );
-	percent_lost_frame=(rand() % 100);//valor entre 0 e 1
+	printf("Porcentagem de Frames Perdidos ?\n");
+	scanf("%f",&percent_lost_frame);
 	percent_lost_frame=percent_lost_frame/100;
 	L_Set_Loss_Probability(percent_lost_frame);
 
@@ -207,13 +207,11 @@ void L_Data_Request(unsigned char mac_dest, char *payload, int bytes_to_send){
 	printf("Camada de enlace pronta para enviar o frame: %s\n", buffer);
 
 	if(buffer_env[0].empty==1){
-		//buffer_env[0].frame=buffer;
 		strcpy (buffer_env[0].frame,buffer);
 		buffer_env[0].empty=0;
 		buffer_env[0].position=0;
 	}
 	else{
-		//buffer_env[1].frame=buffer;
 		strcpy (buffer_env[1].frame,buffer);
 		buffer_env[1].empty=0;
 		buffer_env[0].position=0;
@@ -262,7 +260,6 @@ void l_Recebe_Byte(void) {
 	buffer_receb[1] = Buffer para frame recebido e validado. Pode ser sobrescrito por outro frame recebido e validado
 	buffer_receb[0] = Buffer para o recebimento dos bytes.
 */
-		
 	char ch_recv;
 
 	if(my_mac==0){
@@ -293,32 +290,39 @@ void l_Valida_Quadro(void) {
 	//falta aplicar a perda de pacotes para forçar erro 
 
 	char frame_temp[FRAME_SIZE];
-	char *pch;
+	char *dados;
+	char *resto;
+	int mac_orig;
 	int mac_dest;
+	int tam_dados;
 	int codigo_erro;
+	int prob_quadro;
 
-	pch = strtok(buffer_receb[0].frame, "|");
-	sprintf(frame_temp, "%d|", (int)pch);
-	
+	mac_orig = atoi(strtok(buffer_receb[0].frame, "|"));
 	mac_dest = atoi(strtok(NULL, "|"));
-	if( (my_mac!=(unsigned char)mac_dest) || (mac_dest!=255) ){
-		printf("Nao eh valido\n");
-		exit(-1);
+	dados = strtok(NULL, "|");
+	tam_dados = atoi(strtok(NULL, "|"));
+	resto = strtok(NULL, "|");
+	codigo_erro = atoi(strtok(resto, "$"));	
+
+	if( my_mac!=(unsigned char)mac_dest ){
+		printf("-- Nao eh valido, o quadro nao e pra mim\n");
+		return;
 	}
-	sprintf(frame_temp, "%d|", mac_dest);
 
-	pch = strtok(NULL, "|");
-	sprintf(frame_temp, "%s|", pch);
+	sprintf(frame_temp, "%d|%d|%s|%d", mac_orig,mac_dest,dados,tam_dados);
 
-	pch = strtok(NULL, "|");
-	sprintf(frame_temp, "%d", (int)pch);
-
-	pch = strtok(NULL, "|");
-	codigo_erro=(int)pch[0];
+	//checagem de erro (usar probabilidade randomica de erro para “forcar” a ocorrencia de erros)
+	srand ( time(NULL) );
+	prob_quadro=(rand() % 100);
+	if( (prob_quadro/100) < taxa_perda_quadros){
+		printf("-- Nao eh valido, o quadro foi perdido\n");
+		return;
+	}
 
 	if ( codigo_erro != generate_code_error(frame_temp)){
-		printf("Nao eh valido\n");
-		exit(-1);
+		printf("-- Nao eh valido, o codigo de erro nao esta batendo\n");
+		return;
 	}
 
 	//nao mando o codigo de erro aqui
@@ -328,6 +332,8 @@ void l_Valida_Quadro(void) {
 	memset(&buffer_receb[0].frame, 0, sizeof(buffer_receb[0].frame));
 	buffer_receb[0].empty = 1;
 	buffer_receb[0].position=0;
+
+	return;
 }
 
 void l_Transmite_Byte(void) {
