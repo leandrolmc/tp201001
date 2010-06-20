@@ -239,9 +239,6 @@ void L_MainLoop(){
 	l_Recebe_Byte();
 }
 
-//* Configura a taxa de perda de quadros da camada de enlace
- //* Recebe o valor percentual de perda de quadros
-//L_Set_Loss_Probability() será chamada próximo da inicialização da camada de enlace (logo depois da Activate, por //exemplo). Isso vai salvar o valor passado como parâmetro junto com os outros valores que a camada de enlace usa.
 
 void L_Set_Loss_Probability(float percent_lost_frame){
 	taxa_perda_quadros = percent_lost_frame;
@@ -282,9 +279,40 @@ void l_Recebe_Byte(void) {
 }
 
 void l_Valida_Quadro(void) {
-	// Implementar validação!
-	// soh vai para o buffer 1 se for valido!
-	strcpy(buffer_recv[1].frame, buffer_recv[0].frame);
+	
+	//falta aplicar a perda de pacotes para forçar erro 
+
+	char frame_temp[FRAME_SIZE];
+	char *pch;
+	int mac_dest;
+	int codigo_erro;
+
+	pch = strtok(buffer_recv[0].frame, "|");
+	sprintf(frame_temp, "%d|", (int)pch);
+	
+	mac_dest = atoi(strtok(NULL, "|"));
+	if( (my_mac!=(unsigned char)mac_dest) || (mac_dest!=255) ){
+		printf("Nao eh valido\n");
+		exit(-1);
+	}
+	sprintf(frame_temp, "%d|", mac_dest);
+
+	pch = strtok(NULL, "|");
+	sprintf(frame_temp, "%s|", pch);
+
+	pch = strtok(NULL, "|");
+	sprintf(frame_temp, "%d", (int)pch);
+
+	pch = strtok(NULL, "|");
+	codigo_erro=(int)pch[0];
+
+	if ( codigo_erro != generate_code_error(frame_temp)){
+		printf("Nao eh valido\n");
+		exit(-1);
+	}
+
+	//nao mando o codigo de erro aqui
+	strcpy(buffer_recv[1].frame, frame_temp);
 	buffer_recv[1].empty = 0;
 
 	memset(&buffer_recv[0].frame, 0, sizeof(buffer_recv[0].frame));
