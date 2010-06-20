@@ -228,10 +228,18 @@ int L_Data_Indication(){
 }
 
 int L_Data_Receive(unsigned char *mac_source, char *frame_recv, int max_frame){
-	*mac_source = 24;
-	frame_recv = "wololo!";
 
-	return 0;
+	char *lixo;
+	int tam_dados;
+
+	*mac_source = atoi(strtok(buffer_env[1].frame, "|"));
+	lixo = strtok(NULL, "|");
+	frame_recv = strtok(NULL, "|");
+	tam_dados = atoi(strtok(NULL, "|"));
+
+	if (tam_dados > max_frame) return -1;
+
+	return tam_dados;
 }
 
 void L_MainLoop(){
