@@ -270,7 +270,8 @@ void l_Recebe_Byte(void) {
 					buffer_recv[0].empty=0;
 					l_Valida_Quadro();//obs se nao for valido fazer buffer_recv[0].empty=1;
 					printf("-- Frame completamente recebido.\n");
-					printf("-- Frame recebido na camada de enlace: %s\n", buffer_recv[0].frame);
+					printf("-- Frame recebido na camada de enlace: ");
+					puts(buffer_recv[0].frame);
 				}
 				
 			}
