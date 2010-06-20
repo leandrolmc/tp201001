@@ -23,6 +23,7 @@ void exibir_menu() {
 	printf("'i': L_Data_Indication\n");
 	printf("'d': L_Data_Request\n");
 	printf("'r': L_Data_Receive\n");
+	printf("'x': L_Deactivate_Request\n");
 	printf("'s': Sair\n");
 }
 
@@ -133,7 +134,12 @@ void menu(char option){
 			}
 			exibir_menu();
 			break;
-
+	
+		case 'x':
+			L_Deactivate_Request();            
+			printf("--Sucess L_Deactivate_Request\n");
+			exibir_menu();
+			
 		case 's':            
 			exit(1);
 	}
