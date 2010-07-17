@@ -7,5 +7,5 @@
  *					 Rafael de Oliveira Costa
  */
 
-
+#define NUMBER_OF_INTERFACES 8
 
