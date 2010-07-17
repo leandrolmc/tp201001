@@ -1,11 +1,20 @@
-fisica: fisica.c fisica.h fisica-test.c
-	gcc -o fisica.bin fisica-test.c fisica.c fisica.h 
+fisica: fisica.h fisica.c fisica-test.c
+	gcc -o fisica.bin fisica.h fisica.c fisica-test.c 
 
-comutador: comutador.c comutador.h comutador-test.c
-	gcc -o comutador.bin comutador.c comutador-test.c comutador.h fisica.c fisica.h -g -Wall
+comutador: comutador.h comutador.c comutador-test.c
+	gcc -o comutador.bin comutador.h comutador.c comutador-test.c fisica.h fisica.c
 
-enlace: fisica.c fisica.h enlace-test.c enlace.c enlace.h comutador.c comutador.h 
-	gcc -o enlace.bin enlace-test.c enlace.c enlace.h comutador.c comutador.h fisica.c fisica.h -g -Wall
+enlace: fisica.h fisica.c enlace.h enlace.c enlace-test.c comutador.h comutador.c 
+	gcc -o enlace.bin enlace.h enlace.c enlace-test.c fisica.h fisica.c
+
+rede:  fisica.h fisica.c enlace.h enlace.c enlace-test.c rede.h rede.c rede-test.c 
+	gcc -o rede.bin rede.h rede.c rede-test.c enlace.c enlace.h fisica.h fisica.c
+
+roteador: roteador.h roteador.c roteador-test.c
+	gcc -o roteador.bin roteador.h roteador.c roteador-test.c 
+
+backbone: backbone.h backbone.c backbone-test.c
+	gcc -o backbone.bin backbone.h backbone.c backbone-test.c 
 
 clean:
 	rm *.bin
