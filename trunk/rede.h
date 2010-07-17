@@ -25,14 +25,14 @@ int N_Activate_Request (char *, char *, unsigned char, int, char *);
  * (caso o datagrama seja destinado a um host em outra subrede, deve enviar para o roteador de borda)
  *
  */
-void N Data Request (unsigned char, char *, char *, int);
+void N_Data_Request (unsigned char, char *, char *, int);
 
 
 /* Testa se ha um datagrama recebido no nivel de rede
  * Recebe como parametro a identificacao do protocolo da camada solicitante
  * Retorna 1 caso exista e 0 caso contrario.
  */
-int N Data Indication (unsigned char);
+int N_Data_Indication (unsigned char);
 
 
 /* Busca no nivel de rede os dados do ultimo datagrama recebido;
@@ -43,18 +43,18 @@ int N Data Indication (unsigned char);
  * Retorna o numero de bytes do campo de dados ou −1 no caso de falha 
  * (numero de bytes do datagrama maior que o tamanho maximo esperado).
  */
-int N Data Receive (unsigned char, char *, char *, int);
+int N_Data_Receive (unsigned char, char *, char *, int);
 
 
 /* 
  * Configura a taxa de perda de quadros da camada de enlace
  * Recebe o valor percentual de perda de quadros e chama a funcao L_Set_Loss_Probability.
  */
-void N Set Loss Probability (float):
+void N_Set_Loss_Probability(float);
 
 
 /* 
  * Finaliza o funcionamento dos niveis de rede, enlace e fisico.
  */
-void N Deactivate Request(void);
+void N_Deactivate_Request(void);
 

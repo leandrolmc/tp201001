@@ -7,7 +7,7 @@ comutador: comutador.h comutador.c comutador-test.c
 enlace: fisica.h fisica.c enlace.h enlace.c enlace-test.c comutador.h comutador.c 
 	gcc -o enlace.bin enlace.h enlace.c enlace-test.c fisica.h fisica.c
 
-rede:  fisica.h fisica.c enlace.h enlace.c enlace-test.c rede.h rede.c rede-test.c 
+rede:  fisica.h fisica.c enlace.h enlace.c rede.h rede.c rede-test.c 
 	gcc -o rede.bin rede.h rede.c rede-test.c enlace.c enlace.h fisica.h fisica.c
 
 roteador: roteador.h roteador.c roteador-test.c
