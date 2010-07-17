@@ -186,12 +186,6 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 	buffer_receb[0].position=0;
 	buffer_receb[1].position=0;
 
-	//Inicializa o valor da variavel taxa_perda_quadros
-	printf("Porcentagem de Frames Perdidos ? (valor entre 0 e 100)\n");
-	scanf("%f",&percent_lost_frame);
-	percent_lost_frame=percent_lost_frame/100;
-	L_Set_Loss_Probability(percent_lost_frame);
-
 	return 1;
 }
 
