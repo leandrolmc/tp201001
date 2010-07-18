@@ -26,11 +26,9 @@
  * FRAME ESPECIAL: ENDERECOHOST|PORTA|MACORIGEM
  */
 
-#define PAYLOAD_SIZE 128	
-
-#define FRAME_SIZE 142
-
-#define BROADCAST 255
+#define PAYLOAD_SIZE 	128	
+#define FRAME_SIZE 		142
+#define BROADCAST 		255
 
 
 /* Efetua as inicializacoes do nivel de enlace (recebe o endereco local da maquina) e inicializa o nivel  
@@ -93,6 +91,6 @@ void l_Valida_Quadro(void);
 // Transmite um byte do quadro e checa se terminou a transmissao do quadro
 void l_Transmite_Byte(void);
 
-/* ** funcao auxiliar ** */
+/** * funcao auxiliar ** */
 void definirIPreal(char *);
 

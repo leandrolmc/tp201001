@@ -7,10 +7,9 @@
  *					 Rafael de Oliveira Costa
  */
 
-#define BUFFER_SIZE	1024
+#define BUFFER_SIZE		1024
 #define NUMBER_OF_PORTS 32
-
-#define SWITCH_PORT 9000
+#define SWITCH_PORT 		9000
 
 void init();
 
