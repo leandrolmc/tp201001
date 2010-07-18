@@ -93,7 +93,7 @@ int N_Data_Receive (unsigned char protocolo, char *ip_fonte, char *dados, int ta
  */
 void N_Set_Loss_Probability (float percent_lost_frame) {
 
-	L_Set_Loss_Probability(percent_lost_frame/100);
+	//L_Set_Loss_Probability(percent_lost_frame/100);
 
 }
 
@@ -103,6 +103,6 @@ void N_Set_Loss_Probability (float percent_lost_frame) {
  */
 void N_Deactivate_Request(void) {
 
-	N_Deactivate_Request();
+	//N_Deactivate_Request();
 
 }

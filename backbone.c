@@ -18,7 +18,6 @@
 #include <sys/poll.h>
 #include <arpa/inet.h>
 
-
 //Estrutura que representa a tabela de emulacao dos enlaces fisicos com os roteadores de borda das subredes
 struct table_link_phy {
 	int interface;
@@ -33,6 +32,12 @@ struct table_redirect {
 	char mask_addr[20];
 	int busy;
 };
+
+/*
+ ****************************************
+ ***        Variaveis Globais         ***
+ ****************************************
+ */
 
 //Declarando as tabelas como variaveis globais
 struct table_link_phy table_link_phy[TABLE_LENGTH];
