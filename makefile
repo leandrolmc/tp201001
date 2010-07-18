@@ -14,7 +14,7 @@ roteador: roteador.h roteador.c roteador-test.c
 	gcc -o roteador.bin roteador.h roteador.c roteador-test.c 
 
 backbone: backbone.h backbone.c backbone-test.c
-	gcc -o backbone.bin backbone.h backbone.c backbone-test.c -Wall -g
+	gcc -o backbone.bin backbone.h backbone.c backbone-test.c 
 
 clean:
 	rm *.bin
