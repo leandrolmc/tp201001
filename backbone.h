@@ -8,7 +8,7 @@
  */
 
 
-#define TABLE_LENGTH 	16
+#define TABLE_LENGTH 			16
 #define BACKBONE_PORT 			5000
 #define BUFFER_SIZE				1024
 
@@ -18,6 +18,7 @@
  */
 int start_switch();
 
+//
 void init();
 
 /* Adiciona uma rota na tabela de redirecionamento do backbone
