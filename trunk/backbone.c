@@ -40,6 +40,34 @@ struct table_redirect table_redirect[TABLE_LENGTH];
 
 int last_interface = -1; // interfaces fisicas (sequencial). -1 = nenhuma usada.
 
+/*
+ ****************************************
+ ***        Funcoes Auxiliares        ***
+ ****************************************
+ */
+
+//funcao que imprime espacos em branco
+char* print_space(int tam){
+	int i;
+	char *spaces;
+
+	tam=16-tam;
+	spaces = (char*) malloc (tam * sizeof(char));
+
+	for (i=0;i<tam;i++){
+		spaces[i]='\ ';
+	}
+		spaces[i+1]='\0';
+
+	return spaces;
+}
+
+/*
+ ****************************************
+ ***    Funcoes da API do Backbone    ***
+ ****************************************
+ */
+
 int start_backbone(){
 //	init();
 
@@ -103,21 +131,6 @@ int route_del(char *net_addr,char *mask_addr){
 
 
 	return 0;
-}
-
-char* print_space(int tam){
-	int i;
-	char *spaces; // variavel auxiliar para imprimir espacos em branco (utilizado em list_table())
-
-	tam=16-tam;
-	spaces = (char*) malloc (tam * sizeof(char));
-
-	for (i=0;i<tam;i++){
-		spaces[i]='\ ';
-	}
-		spaces[i+1]='\0';
-
-	return spaces;
 }
 
 void list_table(){
