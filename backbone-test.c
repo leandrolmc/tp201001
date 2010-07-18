@@ -45,7 +45,7 @@ void read_addr(char* msg,char *net_addr){
 		{
 			if(atoi(temp)>255 || atoi(temp)<0){
 				not_leave=1;
-				printf("--Failed %s\n",msg);
+				printf("--Failed %s invalido(a)\n",msg);
 				break;
 			}
  			temp = strtok (NULL, ".");
@@ -54,6 +54,12 @@ void read_addr(char* msg,char *net_addr){
 	}while(not_leave);
 	free(buffer);
 }
+
+/*
+ ****************************************
+ ***        Funcoes de Menu           ***
+ ****************************************
+ */
 
 void exibir_menu() {
 	printf("Selecione uma Função do backbone\n");
@@ -69,9 +75,6 @@ void menu(char option){
 	int  interface; //variavel utilizada para representar a interface onde a rota estara sendo definida
 	char *net_addr; //variavel utilizada para armazenar o endereço de rede da subrede
 	char *mask_addr; //variavel utilizada para armazenar a mascara da subrede
-	char *buffer;
-	char *temp;
-	int not_leave=0;
 
 	switch(option){
   		case 'a':      
@@ -124,16 +127,6 @@ void menu(char option){
 			if(!start_backbone()){
 				printf("--Failed start_backbone\n");
 			}	
-
-		case 't':            
-			getchar();
-			interface=1;
-			net_addr  = (char*) malloc (20 * sizeof(char));
-			read_addr("Digite IP",net_addr);
-			if(!route_add(interface,net_addr,net_addr)){
-				printf("--Failed table_redirect is full\n");
-			}	
-			break;
 	
 		case 'q':            
 			getchar();
@@ -146,8 +139,6 @@ void menu(char option){
 			break;
 	}
 }
-
-
 
 int main(){
 
