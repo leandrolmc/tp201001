@@ -86,6 +86,7 @@ void menu(char option){
 			break;
 
   		case 'r':      
+			getchar();
 			printf("Para remover uma rota e necessario informar endereço de rede e mascara de subrede\n");
 			net_addr  = (char*) malloc (20 * sizeof(char));
 			buffer    = (char*) malloc (20 * sizeof(char));

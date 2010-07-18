@@ -89,10 +89,20 @@ int route_add(int interface, char *net_addr,char *mask_addr){
 	return 1;
 }
 
-//TODO
 int route_del(char *net_addr,char *mask_addr){
-	printf("--Sucess Route Removed\n");
-	return 1;
+
+	int i;
+
+	for(i=0;i<TABLE_LENGTH;i++){
+		if(!strcmp(table_redirect[i].net_addr,net_addr) && !strcmp(table_redirect[i].mask_addr,mask_addr) && table_redirect[i].busy){
+			table_redirect[i].busy=0;
+			printf("--Sucess Route Removed\n");
+			return 1;
+		}
+	}
+
+
+	return 0;
 }
 
 char* print_space(int tam){
