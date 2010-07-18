@@ -14,6 +14,8 @@
 void exibir_menu() {
 	printf("Selecione uma Função do backbone\n");
 	printf("'a': Adicionar rota estatica ao backbone\n");
+	printf("'r': Remover  rota estatica do backbone\n");
+	printf("'l': Listar a tabela de redirecionamento do backbone\n");
 	printf("'i': Iniciar funcionamento do backbone\n");
 	printf("'q': Sair\n");
 }
@@ -34,11 +36,11 @@ void menu(char option){
 			scanf("%d",&interface);
 			getchar(); // a proxima entrada eh por fgets
 			
-			net_addr  = (char*) malloc (15 * sizeof(char));
-			buffer    = (char*) malloc (15 * sizeof(char));
+			net_addr  = (char*) malloc (20 * sizeof(char));
+			buffer    = (char*) malloc (20 * sizeof(char));
 			do{
 				printf("Digite o endereco de rede\n");
-				fgets(net_addr, 15, stdin);
+				fgets(net_addr, 17, stdin);
 				net_addr[strlen(net_addr)-1] = '\0'; //remover o \n consumido
 				strcpy (buffer,net_addr);
 				temp = strtok (buffer,".");
@@ -55,11 +57,62 @@ void menu(char option){
 			}while(not_leave);
 			free(buffer);
 
-			mask_addr  = (char*) malloc (15 * sizeof(char));
-			buffer    = (char*) malloc (15 * sizeof(char));
+			mask_addr  = (char*) malloc (20 * sizeof(char));
+			buffer    = (char*) malloc (20 * sizeof(char));
 			do{
 				printf("Digite a mascara de subrede\n");
-				fgets(mask_addr, 15, stdin);
+				fgets(mask_addr, 17, stdin);
+				mask_addr[strlen(mask_addr)-1] = '\0'; //remover o \n consumido
+				strcpy (buffer,mask_addr);
+				temp = strtok (buffer,".");
+				while (temp != NULL)
+				{
+					if(atoi(temp)>255 || atoi(temp)<0){
+						not_leave=1;
+						printf("--Failed mascara de subrede invalida\n");
+						break;
+					}
+		 			temp = strtok (NULL, ".");
+					not_leave=0;
+				}	
+			}while(not_leave);
+			free(buffer);						
+
+			if(!route_add(interface,net_addr,mask_addr)){
+				printf("--Failed table_redirect is full\n");
+			}	
+			
+			exibir_menu();
+			break;
+
+  		case 'r':      
+			printf("Para remover uma rota e necessario informar endereço de rede e mascara de subrede\n");
+			net_addr  = (char*) malloc (20 * sizeof(char));
+			buffer    = (char*) malloc (20 * sizeof(char));
+			do{
+				printf("Digite o endereco de rede\n");
+				fgets(net_addr, 17, stdin);
+				net_addr[strlen(net_addr)-1] = '\0'; //remover o \n consumido
+				strcpy (buffer,net_addr);
+				temp = strtok (buffer,".");
+				while (temp != NULL)
+				{
+					if(atoi(temp)>255 || atoi(temp)<0){
+						not_leave=1;
+						printf("--Failed endereco de rede invalido\n");
+						break;
+					}
+		 			temp = strtok (NULL, ".");
+					not_leave=0;
+				}	
+			}while(not_leave);
+			free(buffer);
+
+			mask_addr  = (char*) malloc (20 * sizeof(char));
+			buffer    = (char*) malloc (20 * sizeof(char));
+			do{
+				printf("Digite a mascara de subrede\n");
+				fgets(mask_addr, 17, stdin);
 				mask_addr[strlen(mask_addr)-1] = '\0'; //remover o \n consumido
 				strcpy (buffer,mask_addr);
 				temp = strtok (buffer,".");
@@ -76,15 +129,23 @@ void menu(char option){
 			}while(not_leave);
 			free(buffer);			
 
-			if(!route_add(interface,net_addr,mask_addr)){
-				printf("--Failed table_redirect is full\n");
-			}	
-			
+			if(!route_del(net_addr,mask_addr)){
+				printf("--Failed route not found\n");
+			}
+
 			exibir_menu();
 			break;
 
-	
+		case 'l':
+			getchar();
+			printf("--Tabela de Redirecionamento:\n");
+			printf("---NET_ADDRESS     -|- MASK_ADDRESS    -|- INTERFACE---\n");
+			list_table();
+			exibir_menu();
+			break;
+
 		case 'i':
+			getchar();
 			printf("--Iniciando backbone...\n");
 			if(!start_backbone()){
 				printf("--Failed start_backbone\n");
