@@ -7,5 +7,10 @@
  *					 Rafael de Oliveira Costa
  */
 
+/* Efetua a inicializacao do roteador de borda
+ * Retorna 1 em caso de sucesso e 0 em caso de falha
+ */
+int start_router(char *);
 
+void link_to_backbone();
 

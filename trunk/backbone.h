@@ -16,7 +16,7 @@
 /* Efetua a inicializacao do backbone
  * Retorna 1 em caso de sucesso e 0 em caso de falha
  */
-int start_switch();
+int start_backbone();
 
 //
 void init();
