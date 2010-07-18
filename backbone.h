@@ -7,5 +7,21 @@
  *					 Rafael de Oliveira Costa
  */
 
-#define NUMBER_OF_INTERFACES 8
+
+#define NUMBER_OF_INTERFACES 	4
+#define BACKBONE_PORT 			5000
+#define BUFFER_SIZE				1024
+
+
+/* Efetua a inicializacao do backbone
+ * Retorna 1 em caso de sucesso e 0 em caso de falha
+ */
+int start_switch();
+
+void init();
+
+/* Adiciona uma rota na tabela de redirecionamento do backbone
+ * Retorna 1 em caso de sucesso e 0 em caso de falha
+ */
+int route_add(int, char *,char *);
 
