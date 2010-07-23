@@ -6,6 +6,7 @@
  *		Rafael de Oliveira Costa
  */
 
+#include "fisica.h"
 #include "enlace.h"
 #include "comutador.h"
 #include <time.h>

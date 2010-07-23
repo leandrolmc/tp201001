@@ -157,7 +157,7 @@ void plug_host(int switch_port, char *host_addr) {
 
 int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
-	float percent_lost_frame;
+//	float percent_lost_frame;
 
 	//Verificar se my_mac já foi gerado. Se sim quer dizer que a funcao L_Activate_Request já foi inicializada*/
 	if(my_mac!=0){

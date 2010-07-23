@@ -94,3 +94,5 @@ void l_Transmite_Byte(void);
 /** * funcao auxiliar ** */
 void definirIPreal(char *);
 
+void enlace_definirIPreal(char * ip);
+
