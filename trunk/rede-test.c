@@ -6,6 +6,8 @@
  *		Rafael de Oliveira Costa
  */
 
+#include "fisica.h"
+#include "enlace.h"
 #include "rede.h"
 #include <time.h>
 #include <stdio.h>
@@ -13,6 +15,8 @@
 #include <string.h>
 #include <sys/poll.h>
 #include <unistd.h>
+
+int indicacao_datagrama;
 
 void exibir_menu() {
 	printf("Selecione uma Função\n");
@@ -24,52 +28,63 @@ void exibir_menu() {
 	printf("'s': Sair\n");
 }
 
+int validar_ip_logico(char *ip) {
+	int i;
+	char *temp;
+	char *temp_ip;
+	char *temp_mask;
+	char *buffer = (char*) malloc (18 * sizeof(char));
+
+	strcpy (buffer, ip);
+	temp_ip = strtok (buffer,"/");
+	temp_mask = strtok(NULL, "/");
+	temp = strtok (temp_ip,".");
+	for (i = 0; i < 4 && temp != NULL; i++){
+		if(atoi(temp)>255 || atoi(temp)<0){
+			return 0;
+		}
+		temp = strtok (NULL, ".");
+	}
+	if (temp_mask != NULL) {
+		if(atoi(temp_mask)>32 || atoi(temp_mask)<1){
+			return 0;
+		}
+	}
+
+	free(buffer);
+
+	return 1;
+}
+
 void menu(char option){
 
 	unsigned char mac;
 	char *my_addr;
+	char *dest_addr;
 	char *router_addr;
 	char *switch_addr;
 	char *message_to_send;
 	char *buffer;
 	char *temp;
-	char *temp_ip;
-	char *temp_mask;
+	int id_protocol;
 	int switch_port;
 	int mac_temp;
 	int not_leave=0;
 	
-	int i;
-
-	unsigned char mac_source;
-	char frame_recv[200];
-	int max_frame;
+	char ip_source[18];
+	char datagrama_recv[200];
+	int max_datagrama;
 
 	switch(option){
   		case 'a':
+			not_leave = 0;
 			router_addr  = (char*) malloc (18 * sizeof(char));
 			buffer  = (char*) malloc (18 * sizeof(char));
 			do{
 				printf("Digite o IP do roteador de borda (formato N.N.N.N/M):\n");
 				scanf("%s", router_addr);
-				strcpy (buffer,router_addr);
-				temp_ip = strtok (buffer,"/");
-				temp_mask = strtok(NULL, "/");
-				temp = strtok (temp_ip,".");
-				for (i = 0; i < 4 && temp != NULL; i++){
-					if(atoi(temp)>255 || atoi(temp)<0){
-						not_leave=1;
-						break;
-					}
-		 			temp = strtok (NULL, ".");
-					not_leave=0;
-				}
-				if (temp_mask != NULL) {
-					if(atoi(temp_mask)>32 || atoi(temp_mask)<1){
-						not_leave=1;
-					}
-				}
-				else {
+
+				if (!validar_ip_logico(router_addr)) {
 					not_leave = 1;
 				}
 
@@ -83,24 +98,8 @@ void menu(char option){
 			do{
 				printf("Digite o IP do host (formato N.N.N.N/M):\n");
 				scanf("%s", my_addr);
-				strcpy (buffer,my_addr);
-				temp_ip = strtok (buffer,"/");
-				temp_mask = strtok(NULL, "/");
-				temp = strtok (temp_ip,".");
-				for (i = 0; i < 4 && temp != NULL; i++){
-					if(atoi(temp)>255 || atoi(temp)<0){
-						not_leave=1;
-						break;
-					}
-		 			temp = strtok (NULL, ".");
-					not_leave=0;
-				}
-				if (temp_mask != NULL) {
-					if(atoi(temp_mask)>32 || atoi(temp_mask)<1){
-						not_leave=1;
-					}
-				}
-				else {
+
+				if (!validar_ip_logico(my_addr)) {
 					not_leave = 1;
 				}
 
@@ -153,58 +152,78 @@ void menu(char option){
 			exibir_menu();
 			break;
 
-		case 'i':
-/*			indicacao_frame = L_Data_Indication();*/
-/*			if(!indicacao_frame){*/
-/*				printf("nao ");*/
-/*			}        */
-/*			printf("existe um quadro recebido na camada de enlace\n");*/
-/*			exibir_menu();*/
-			break;
-
 		case 'd':
-/*			do {*/
-/*				printf("Digite o MAC destino\n");*/
-/*				scanf("%d",&mac_temp);*/
-/*				if (mac_temp < 1 || mac_temp > 255)*/
-/*					printf("MAC inválido. Escolha um entre 0 e 255\n");*/
-/*			} while (mac_temp < 1 || mac_temp > 255);*/
-/*			mac=(unsigned char)mac_temp;*/
-/*			getchar(); // a proxima entrada eh por fgets*/
+			printf("Digite a identificação do protocolo (1 - TCP, 2 - UDP):\n");
+			scanf("%d",&id_protocol);
 
-/*			message_to_send  = (char*) malloc (PAYLOAD_SIZE * sizeof(char));*/
-/*			printf("Digite a mensagem a ser enviada\n");*/
-/*			fgets(message_to_send, PAYLOAD_SIZE, stdin);*/
-/*			message_to_send[strlen(message_to_send)-1] = '\0';*/
+			not_leave = 0;
+			dest_addr  = (char*) malloc (18 * sizeof(char));
+			do{
+				printf("Digite o IP destino (formato N.N.N.N/M):\n");
+				scanf("%s", dest_addr);
 
-/*			L_Data_Request(mac,message_to_send,strlen(message_to_send));*/
+				if (!validar_ip_logico(dest_addr)) {
+					not_leave = 1;
+				}
 
-/*			printf("--Sucess L_Data_Request\n");	*/
-/*			exibir_menu();*/
+				if (not_leave) {
+					printf("--Failed endereco invalido\n");
+				}
+			}while(not_leave);
+
+			getchar(); // a proxima entrada eh por fgets
+
+			message_to_send  = (char*) malloc (PAYLOAD_SIZE * sizeof(char));
+			printf("Digite a mensagem a ser enviada\n");
+			fgets(message_to_send, PAYLOAD_SIZE, stdin);
+			message_to_send[strlen(message_to_send)-1] = '\0';
+
+			N_Data_Request(id_protocol, dest_addr,message_to_send,strlen(message_to_send));
+
+			printf("--Sucess N_Data_Request\n");	
+			exibir_menu();
 			break;
-		case 'r':
-/*			if (indicacao_frame) {*/
-/*				printf("Qual o tamanho maximo dos dados do frame?\n");*/
-/*				scanf("%d", &max_frame);*/
 
-/*				memset(&frame_recv, 0, sizeof(frame_recv));*/
-/*				printf("recuperando..\n");*/
-/*				if (L_Data_Receive(&mac_source, frame_recv, max_frame) >= 0) {*/
-/*				printf("A mensagem recebida do mac %d foi: %s\n", mac_source, frame_recv); */
-/*				}*/
-/*				else {*/
-/*					printf("A mensagem recebida é maior que o tamanho maximo de dados do frame\n"); */
-/*				}*/
-/*			}*/
-/*			else {*/
-/*				printf("Verifique antes de tentar receber!\n");*/
-/*			}*/
-/*			exibir_menu();*/
+		case 'i':
+			printf("Digite a identificação do protocolo (1 - TCP, 2 - UDP):\n");
+			scanf("%d",&id_protocol);
+
+			indicacao_datagrama = N_Data_Indication(id_protocol);
+
+			if(!indicacao_datagrama){
+				printf("nao ");
+			}        
+			printf("existe um datagrama recebido na camada de rede\n");
+			exibir_menu();
+			break;
+
+		case 'r':
+			printf("Digite a identificação do protocolo (1 - TCP, 2 - UDP):\n");
+			scanf("%d",&id_protocol);
+
+			if (indicacao_datagrama) {
+				printf("Qual o tamanho maximo dos dados do datagrama?\n");
+				scanf("%d", &max_datagrama);
+
+				memset(&datagrama_recv, 0, sizeof(datagrama_recv));
+				memset(&ip_source, 0, sizeof(ip_source));
+				printf("recuperando..\n");
+				if (N_Data_Receive(id_protocol, ip_source, datagrama_recv, max_datagrama) >= 0) {
+				printf("A mensagem recebida do ip %s foi: %s\n", ip_source, datagrama_recv); 
+				}
+				else {
+					printf("A mensagem recebida é maior que o tamanho maximo de dados do datagrama\n"); 
+				}
+			}
+			else {
+				printf("Verifique antes de tentar receber!\n");
+			}
+			exibir_menu();
 			break;
 	
 		case 'x':
 			N_Deactivate_Request();            
-			printf("--Sucess L_Deactivate_Request\n");
+			printf("--Sucess N_Deactivate_Request\n");
 			exibir_menu();
 
 		case 's':            

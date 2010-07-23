@@ -58,7 +58,7 @@ int N_Activate_Request (char *ip_roteadorborda, char *ip_host, unsigned char mac
  */
 //parametros: identificacao do protocolo, ip_destino, dados, numero de bytes
 void N_Data_Request (unsigned char protocolo, char *ip_dest, char *dados, int num_bytes) {
-
+	//eu tenho q descobrir o mac via arp
 }
 
 

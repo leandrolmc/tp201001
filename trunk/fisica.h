@@ -26,3 +26,5 @@ char P_Data_Receive(void);
 
 // Encerra o canal de comunicacao estabelecido
 void P_Deactivate_Request(void);
+
+void fisica_definirIPreal(char * ip);
