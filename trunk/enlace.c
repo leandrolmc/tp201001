@@ -301,9 +301,16 @@ void l_Valida_Quadro(void) {
 
 	dest = (unsigned char) mac_dest;
 
-	if( dest != my_mac || dest != BROADCAST ){
-		printf("-- Nao eh valido, o quadro nao e pra mim. Pacote descartado.\n");
-		return;
+	if( dest != my_mac){
+		printf("-- O quadro nao é para mim.\n");
+		if (dest == (unsigned char)BROADCAST) {
+			printf("-- O quadro é broadcast.\n");
+		}
+		else {
+			printf("-- O quadro não é broadcast.\n");
+			printf("-- O quadro será descartado.\n");
+			return;
+		}
 	}
 
 	sprintf(frame_temp, "%d|%d|%s|%d", mac_orig,mac_dest,dados,tam_dados);
