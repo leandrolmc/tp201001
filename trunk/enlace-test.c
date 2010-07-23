@@ -172,7 +172,8 @@ int main(){
 	fgets(ipreal, 15, stdin);
 	ipreal[strlen(ipreal)-1] = '\0';
 
-	definirIPreal(ipreal);
+	enlace_definirIPreal(ipreal);
+	fisica_definirIPreal(ipreal);
 
 	exibir_menu();
 	while(1){

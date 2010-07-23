@@ -60,6 +60,8 @@ struct buffer_comutador {
 	int pos;
 } buffer_recv, buffer_env;
 
+char ipreal[15];
+
 
 void init(void) {
 	int i; // indice generico para auxiliar na iteração dos vetores
@@ -79,7 +81,7 @@ void init(void) {
 	// Definindo informações do endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
 	local_addr.sin_family = AF_INET;
-	local_addr.sin_addr.s_addr = INADDR_ANY;
+	local_addr.sin_addr.s_addr = inet_addr(ipreal);
 	local_addr.sin_port = htons(SWITCH_PORT);
 
 	// associando a porta a maquina local
@@ -116,7 +118,7 @@ void verifica_conexoes(void) {
 			// Definindo informações do endereco local
 			memset(&local_addr, 0, sizeof(local_addr));
 			local_addr_comm[last_port].sin_family = AF_INET;
-			local_addr_comm[last_port].sin_addr.s_addr = INADDR_ANY;
+			local_addr_comm[last_port].sin_addr.s_addr = inet_addr(ipreal);
 			local_addr_comm[last_port].sin_port = htons(table_phy[last_port].port);
 
 			// associando a porta a maquina local
@@ -282,4 +284,10 @@ int start_switch(){
 	}
 
    return 1;
+}
+
+/* ** funcao auxiliar ** */
+void comutador_definirIPreal(char * ip) {
+	strcpy(ipreal, ip);
+
 }
