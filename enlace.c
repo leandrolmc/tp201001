@@ -290,6 +290,8 @@ void l_Valida_Quadro(void) {
 	int codigo_erro;
 	int prob_quadro;
 
+	unsigned char dest;
+
 	mac_orig = atoi(strtok(buffer_receb[0].frame, "|"));
 	mac_dest = atoi(strtok(NULL, "|"));
 	dados = strtok(NULL, "|");
@@ -297,8 +299,10 @@ void l_Valida_Quadro(void) {
 	resto = strtok(NULL, "|");
 	codigo_erro = atoi(strtok(resto, "$"));	
 
-	if( my_mac!=(unsigned char)mac_dest ){
-		printf("-- Nao eh valido, o quadro nao e pra mim\n");
+	dest = (unsigned char) mac_dest;
+
+	if( dest != my_mac || dest != BROADCAST ){
+		printf("-- Nao eh valido, o quadro nao e pra mim. Pacote descartado.\n");
 		return;
 	}
 
