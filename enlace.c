@@ -370,7 +370,7 @@ void l_Transmite_Byte(void) {
 }
 
 /* ** funcao auxiliar ** */
-void definirIPreal(char * ip) {
+void enlace_definirIPreal(char * ip) {
 	strcpy(ipreal, ip);
 
 }

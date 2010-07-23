@@ -8,8 +8,17 @@
 
 #include "comutador.h"
 #include <stdio.h>
+#include <string.h>
 
 int main(){
+
+	char ipreal[15];
+	printf("Qual o IP real desta maquina?\n");
+	fgets(ipreal, 15, stdin);
+	ipreal[strlen(ipreal)-1] = '\0';
+
+	comutador_definirIPreal(ipreal);
+
 	printf("--Iniciando comutador...\n");
 
 	if(!start_switch()){

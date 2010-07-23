@@ -32,6 +32,8 @@ char buffer_send[BUFFER_SIZE]; //buffer onde os bytes enviados serão armazenado
 char buffer_recv[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
 int last=0; //aponta pro ultimo byte recebido em buffer
 
+char ipreal[15];
+
 /*
  * Efetua as inicializacoes necessarias da camada fisica.
  *
@@ -52,7 +54,7 @@ int P_Activate_Request(int port, char *addr){
 	// Definindo informações do endereco local
 	memset(&local_addr, 0, sizeof(local_addr));
 	local_addr.sin_family = AF_INET;
-	local_addr.sin_addr.s_addr = INADDR_ANY;
+	local_addr.sin_addr.s_addr = inet_addr(ipreal);
 	local_addr.sin_port = htons(port);
 
 	// associando a porta a maquina local
@@ -126,4 +128,10 @@ char P_Data_Receive(void){
  */
 void P_Deactivate_Request(void){
 	close(phy_sd);
+}
+
+/* ** funcao auxiliar ** */
+void fisica_definirIPreal(char * ip) {
+	strcpy(ipreal, ip);
+
 }
