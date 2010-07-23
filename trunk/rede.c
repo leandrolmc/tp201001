@@ -16,6 +16,7 @@
 #include "fisica.h"
 
 
+int isRouter;
 
 char *ip_roteadorsubrede;
 char *meu_ip;
@@ -31,6 +32,13 @@ char *meu_ip;
 int N_Activate_Request (char *ip_roteadorborda, char *ip_host, unsigned char mac_host, int porta_comutador, char *ip_comutador) {
 
 	float percent_lost_frame;
+
+	// o roteador devera identificar que ele é um roteador de borda (IP local = IP do roteador de borda)
+	// e então deverá conectar-se logicamente (emulacao de uma ligacao ponto-a-ponto) com o roteador central,
+	// informando a sua máscara de rede e IP base.
+	if (strcmp(ip_roteadorborda, ip_host) == 0) { // se sao ips iguais
+		isRouter = 1; // é roteador de borda
+	}
 	
 	ip_roteadorsubrede = ip_roteadorborda;
 	meu_ip = ip_host;
