@@ -145,6 +145,7 @@ void plug_host(int switch_port, char *host_addr) {
 	if ((sendto(phy_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");
 		close(phy_sd);
+		exit(-1);
 	}
 	else {
 		printf("-- Dados transmitidos com sucesso.\n");
@@ -168,7 +169,9 @@ int L_Activate_Request(unsigned char mac, int switch_port, char *host_addr){
 
 	plug_host(switch_port, host_addr);
 
-	P_Activate_Request(switch_port, host_addr);
+	if (!P_Activate_Request(switch_port, host_addr)) {
+		return 0;
+	}
 
 	//Inicializando os buffers de envio e recebimento
 	memset(&buffer_env[0].frame, 0, FRAME_SIZE);
