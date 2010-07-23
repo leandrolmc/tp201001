@@ -199,4 +199,54 @@ int start_backbone(){
 }
 
 void verifica_conexoes() {	
+
+	int resultado = poll(ufds_con, 1, 500);
+
+	if (resultado > 0) {
+		if (ufds_con[0].revents & POLLIN) {
+			if (recvfrom(socket_conexoes, buffer_conexoes, sizeof(buffer_conexoes), 0, (struct sockaddr *)0, 0) > 0) {
+	
+				last_interface++;
+
+				//preenchendo a tabela de conexao logica com os roteadores de borda
+				table_link_phy[last_interface].interface=last_interface;
+				strcpy(table_link_phy[last_interface].real_border_router_address, strtok(buffer_conexoes, "|"));
+				table_link_phy[last_interface].real_border_router_port = atoi(strtok(NULL, "|"));
+
+				// preenchendo tabela de redirecionamento
+				route_add(last_interface, strtok(buffer_conexoes, "|"),strtok(buffer_conexoes, "|"));
+
+				// Criação da conexao de enlace
+				// Criando socket
+				if ((socket_comunicacao[last_interface] = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+					printf("--Erro na criacao do socket\n");
+					exit(-1);
+				}
+				// Definindo informações do endereco local
+				memset(&local_addr, 0, sizeof(local_addr));
+				local_addr_comm[last_interface].sin_family = AF_INET;
+				local_addr_comm[last_interface].sin_addr.s_addr = inet_addr(table_link_phy[last_interface].real_border_router_address);
+				local_addr_comm[last_interface].sin_port = htons(table_link_phy[last_interface].real_border_router_port);
+
+				// associando a porta a maquina local
+				if (bind(socket_comunicacao[last_interface],(struct sockaddr *)&local_addr_comm[last_interface], sizeof(struct sockaddr)) < 0) {
+					printf("--Exit com erro no bind da porta %d\n", table_link_phy[last_interface].real_border_router_port);
+					close(socket_comunicacao[last_interface]);
+					exit(-1);
+				}
+				ufds_comm[last_interface].fd = socket_comunicacao[last_interface];
+				ufds_comm[last_interface].events = POLLIN;
+
+				list_table();
+
+//				printf("Conexão estabelecida na interface %d. Mac: %d | IP: %s | Porta: %d\n", last_interface, table_link_phy[last_interface].mac, table_link_phy[last_interface].address, table_link_phy[last_interface].port);
+
+				memset(&buffer_conexoes, 0, sizeof(buffer_conexoes));
+			}
+		}
+	}
+	else if (resultado == -1) {
+		printf("--erro no poll\n");
+		exit(-1);
+	}
 }
