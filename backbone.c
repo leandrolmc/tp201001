@@ -209,7 +209,7 @@ void verifica_conexoes() {
 				strcpy(table_redirect[last_interface].mask_addr,strtok(NULL, "|"));
 				table_redirect[last_interface].busy=1;
 
-				// TODO Criação da conexao de enlace
+				// Criação da conexao de enlace
 				// Criando socket
 				if ((socket_comunicacao[last_interface] = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
 					printf("--Erro na criacao do socket\n");
@@ -223,16 +223,14 @@ void verifica_conexoes() {
 
 				// associando a porta a maquina local
 				if (bind(socket_comunicacao[last_interface],(struct sockaddr *)&local_addr_comm[last_interface], sizeof(struct sockaddr)) < 0) {
-					printf("--Exit com erro no bind da porta %d\n", table_link_phy[last_interface].real_border_router_port);
-					close(socket_comunicacao[last_interface]);
-					exit(-1);
+				  printf("--Exit com erro no bind da porta %d\n", table_link_phy[last_interface].real_border_router_port);
+				  close(socket_comunicacao[last_interface]);
+				  exit(-1);
 				}
 				ufds_comm[last_interface].fd = socket_comunicacao[last_interface];
 				ufds_comm[last_interface].events = POLLIN;
 
-				list_table();
-
-//				printf("Conexão estabelecida na interface %d. Mac: %d | IP: %s | Porta: %d\n", last_interface, table_link_phy[last_interface].mac, table_link_phy[last_interface].address, table_link_phy[last_interface].port);
+				printf("Conexão estabelecida na interface %d. | IP: %s | MASK: %s\n", last_interface, table_redirect[last_interface].ip_addr,table_redirect[last_interface].mask_addr);
 
 				memset(&buffer_conexoes, 0, sizeof(buffer_conexoes));
 			}
