@@ -80,6 +80,7 @@ int link_to_backbone(){
 
 	//datagrama especial contem apenas o ip real | porta real | ip logico | mascara logica do roteador de borda
 	sprintf(buffer_send, "%s|%d|%s|%s", inet_ntoa(local_addr.sin_addr), real_router_port,router_addr,router_mask);
+	printf("%s\n",buffer_send);
 
 	if ((sendto(router_sd, buffer_send, strlen(buffer_send), 0, (struct sockaddr*)&remote_addr, sizeof (struct sockaddr_in))) < 0) {
 		printf("--Erro na transmissão\n");

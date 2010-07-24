@@ -63,9 +63,9 @@ void read_addr(char* msg,char *net_addr){
 
 void exibir_menu() {
 	printf("Selecione uma Função do backbone\n");
-	printf("'a': Adicionar rota estatica ao backbone\n");
-	printf("'r': Remover  rota estatica do backbone\n");
-	printf("'l': Listar a tabela de redirecionamento do backbone\n");
+//	printf("'a': Adicionar rota estatica ao backbone\n");
+//	printf("'r': Remover  rota estatica do backbone\n");
+//	printf("'l': Listar a tabela de redirecionamento do backbone\n");
 	printf("'i': Iniciar funcionamento do backbone\n");
 	printf("'q': Sair\n");
 }

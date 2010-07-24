@@ -11,10 +11,10 @@ rede:  fisica.h fisica.c enlace.h enlace.c rede.h rede.c rede-test.c
 	gcc -o rede.bin rede.h rede.c rede-test.c enlace.c enlace.h fisica.h fisica.c -Wall
 
 roteador: roteador.h roteador.c roteador-test.c rede.h rede.c
-	gcc -o roteador.bin roteador.h roteador.c roteador-test.c -Wall 
+	gcc -o roteador.bin roteador.h roteador.c roteador-test.c 
 
 backbone: backbone.h backbone.c backbone-test.c
-	gcc -o backbone.bin backbone.h backbone.c backbone-test.c -Wall 
+	gcc -o backbone.bin backbone.h backbone.c backbone-test.c  
 
 clean:
 	rm *.bin
