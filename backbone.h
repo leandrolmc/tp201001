@@ -7,11 +7,11 @@
  *					 Rafael de Oliveira Costa
  */
 
-
 #define NUMBER_OF_INTERFACES	4
-#define TABLE_LENGTH 			16
+
 #define BACKBONE_IP				"127.0.0.1"
 #define BACKBONE_PORT 			8000
+
 #define BUFFER_SIZE				1024
 #define DATAGRAMA_SIZE			1024
 

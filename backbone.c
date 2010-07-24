@@ -18,6 +18,12 @@
 #include <sys/poll.h>
 #include <arpa/inet.h>
 
+/*
+ ****************************************
+ ***     Declaracao de Estruturas     ***
+ ****************************************
+ */
+
 //Estrutura que representa a tabela de emulacao dos enlaces fisicos com os roteadores de borda das subredes
 struct table_link_phy {
 	int interface;
@@ -28,7 +34,7 @@ struct table_link_phy {
 //Estrutura que representa a tabela de redirecionamento normal do roteador
 struct table_redirect {
 	int interface;
-	char net_addr[20];
+	char ip_addr[20];
 	char mask_addr[20];
 	int busy;
 };
@@ -48,15 +54,12 @@ struct buffer_backbone {
 
 //Declarando as tabelas como variaveis globais
 struct table_link_phy table_link_phy[NUMBER_OF_INTERFACES];
-struct table_redirect table_redirect[TABLE_LENGTH];
+struct table_redirect table_redirect[NUMBER_OF_INTERFACES];
 
 int last_interface = -1; // interfaces fisicas (sequencial). -1 = nenhuma usada.
 
-// variavel que aponta para a ultima posicao da tabela de redirecionamento(sequencial). -1 = nenhuma usada.
-int last_table = -1; 
-
 struct sockaddr_in local_addr; // informacoes de endereco local
-int socket_conexoes; // socket responsavel por aguardar as conexoes logicas entre o roteador de borda e o backbone
+int socket_conexoes; // socket responsavel por aguardar as conexoes logicas do roteador de borda para o backbone
 struct pollfd ufds_con[1]; //pollfd para conexoes logicas entre o roteador de borda e o backbone
 
 char buffer_conexoes[BUFFER_SIZE]; //buffer onde os bytes recebidos serão armazenados
@@ -93,46 +96,44 @@ char* print_space(int tam){
  ****************************************
  */
 
-int route_add(int interface, char *net_addr,char *mask_addr){
+int route_add(int interface, char *ip_addr,char *mask_addr){
 
 	int not_search=0;
 
-	last_table++;
+	last_interface++;
 
-	while(table_redirect[last_table].busy){
+	while(table_redirect[last_interface].busy){
 
-		if (last_table==TABLE_LENGTH && table_redirect[last_table].busy && not_search){
+		if (last_interface==NUMBER_OF_INTERFACES && table_redirect[last_interface].busy && not_search){
 			return 0;
 		}
-		if (last_table==TABLE_LENGTH && table_redirect[last_table].busy){
-			last_table=-1;
+		if (last_interface==NUMBER_OF_INTERFACES && table_redirect[last_interface].busy){
+			last_interface=-1;
 			not_search=1;		
 		}
-		last_table++;		
+		last_interface++;		
 	}
 
-	table_redirect[last_table].interface=interface;	
-	strcpy(table_redirect[last_table].net_addr, net_addr);
-	strcpy(table_redirect[last_table].mask_addr, mask_addr);
-	table_redirect[last_table].busy=1;	
+	table_redirect[last_interface].interface=interface;	
+	strcpy(table_redirect[last_interface].ip_addr, ip_addr);
+	strcpy(table_redirect[last_interface].mask_addr, mask_addr);
+	table_redirect[last_interface].busy=1;	
 
 	printf("--Sucess Route Added\n");
 	return 1;
 }
 
-int route_del(char *net_addr,char *mask_addr){
+int route_del(char *ip_addr,char *mask_addr){
 
 	int i;
 
-	for(i=0;i<TABLE_LENGTH;i++){
-		if(!strcmp(table_redirect[i].net_addr,net_addr) && !strcmp(table_redirect[i].mask_addr,mask_addr) && table_redirect[i].busy){
+	for(i=0;i<NUMBER_OF_INTERFACES;i++){
+		if(!strcmp(table_redirect[i].ip_addr,ip_addr) && !strcmp(table_redirect[i].mask_addr,mask_addr) && table_redirect[i].busy){
 			table_redirect[i].busy=0;
 			printf("--Sucess Route Removed\n");
 			return 1;
 		}
 	}
-
-
 	return 0;
 }
 
@@ -140,14 +141,14 @@ void list_table(){
 
 	int i;
 
-	if(last_table==-1){
+	if(last_interface==-1){
 		printf("Redirect Table not used\n");
 	}
 
-	for(i=0;i<TABLE_LENGTH;i++){
+	for(i=0;i<NUMBER_OF_INTERFACES;i++){
 		if(table_redirect[i].busy){
 			
-		printf("   %s%s-|- %s%s-|- %d\n",table_redirect[i].net_addr,print_space(strlen(table_redirect[i].net_addr)),table_redirect[i].mask_addr,print_space(strlen(table_redirect[i].mask_addr)),table_redirect[i].interface);
+		printf("   %s%s-|- %s%s-|- %d\n",table_redirect[i].ip_addr,print_space(strlen(table_redirect[i].ip_addr)),table_redirect[i].mask_addr,print_space(strlen(table_redirect[i].mask_addr)),table_redirect[i].interface);
 		}
 	}
 }
@@ -156,7 +157,7 @@ void init(){
 	int i;
 
 	//Setando todas as entradas da tabela como vazias
-	for(i=0;i<TABLE_LENGTH;i++){
+	for(i=0;i<NUMBER_OF_INTERFACES;i++){
 		table_redirect[i].busy=0;
 	}
 
@@ -173,29 +174,18 @@ void init(){
 	local_addr.sin_port = htons(BACKBONE_PORT);
 
 	// associando a porta a maquina local
-        if (bind(socket_conexoes,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
-           printf("--Exit com erro no bind \n");
-           close(socket_conexoes);
-           exit(-1);
-        }
+	if (bind(socket_conexoes,(struct sockaddr *)&local_addr, sizeof(struct sockaddr)) < 0) {
+		printf("--Exit com erro no bind \n");
+		close(socket_conexoes);
+		exit(-1);
+	}
 
+
+	//Preparando o poll para aguardar eventos que avisem quando dados estão prontos para serem recebidos
+	//pela função recv() (POLLIN) no socket socket_conexoes
 	ufds_con[0].fd = socket_conexoes;
 	ufds_con[0].events = POLLIN;
 
-}
-
-
-int start_backbone(){
-	init();
-
-	while (1) {
-		verifica_conexoes();
-//		recebe_frame();
-//		verifica_frame();
-//		envia_frame();
-	}
-
-   return 1;
 }
 
 void verifica_conexoes() {	
@@ -214,9 +204,12 @@ void verifica_conexoes() {
 				table_link_phy[last_interface].real_border_router_port = atoi(strtok(NULL, "|"));
 
 				// preenchendo tabela de redirecionamento
-				route_add(last_interface, strtok(buffer_conexoes, "|"),strtok(buffer_conexoes, "|"));
+				table_redirect[last_interface].interface=last_interface;		   
+				strcpy(table_redirect[last_interface].ip_addr,strtok(NULL, "|"));
+				strcpy(table_redirect[last_interface].mask_addr,strtok(NULL, "|"));
+				table_redirect[last_interface].busy=1;
 
-				// Criação da conexao de enlace
+				// TODO Criação da conexao de enlace
 				// Criando socket
 				if ((socket_comunicacao[last_interface] = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
 					printf("--Erro na criacao do socket\n");
@@ -250,3 +243,17 @@ void verifica_conexoes() {
 		exit(-1);
 	}
 }
+
+int start_backbone(){
+	init();
+
+	while (1) {
+		verifica_conexoes();
+//		recebe_frame();
+//		verifica_frame();
+//		envia_frame();
+	}
+
+   return 1;
+}
+
