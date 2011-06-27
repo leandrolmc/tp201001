@@ -41,3 +41,6 @@ void list_table();
 
 // Efetua o redirecionamento dos datagramas para a interface correta
 void rotear_pacotes();
+
+
+//teste
